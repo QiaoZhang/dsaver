@@ -2,30 +2,192 @@ package com.eptd.dsaver.dbo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+
+import com.eptd.dsaver.core.Repository;
+import com.eptd.dsaver.core.User;
 
 public class DBOperation {
-	// global static connection
-	static Connection conn;
-	// global static statement
-	static Statement st;
-	
-	public DBOperation(){
-		conn = this.getConnection();
+	private Connection conn;
+
+	// JDBC driver name and database URL
+	static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+	static final String DB_URL = "jdbc:mariadb://localhost:3306/eptd";
+
+	// Database credentials
+	static final String USER = "root";
+	static final String PASS = "loveon1225";
+
+	public DBOperation() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException {
+		this.conn = this.getConnection();
+	}
+
+	/**
+	 * Method of connecting database
+	 * 
+	 * @return
+	 * @throws SQLException
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 */
+	private Connection getConnection()
+			throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+		Class.forName(JDBC_DRIVER);
+		// create database connection
+		Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
+		return con;
+	}
+
+	public int insert(Repository repo)
+			throws SQLException {
+		final String sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);// id
+		ps.setLong(2, repo.getProjectID());// repo_id
+		ps.setString(3, repo.getRepositoryURL());// repo_url
+		ps.setString(4, repo.getRepositoryHTML());// repo_html
+		ps.setString(5, repo.getProjectName());// repo_name
+		ps.setString(6, repo.getOwnerLogin());// owner_login
+		ps.setString(7, repo.getUserType());// owner_type
+		ps.setString(8, repo.getLanguage());// major_language
+		ps.setString(9, repo.getVersion());// version
+		ps.setLong(10, repo.getSize());// size
+		ps.setLong(11, repo.getStargazersCount());// stargazers
+		ps.setLong(12, repo.getForksCount());// forks
+		ps.setLong(13, repo.getIssuesCount());// issues
+		ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
+		ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
+		ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			if(rs.next()){
+				ps.close();//close statement to release resource
+				return rs.getInt(1);
+			}			
+			return 0;
+		}else
+			throw new SQLException("Creating user failed, no rows affected during insert operation of repo "+repo.getProjectID());
+	}
+
+	public int insert(User user) throws SQLException {
+		final String sql = "INSERT IGNORE INTO user (id,user_id,user_html,user_login,user_name,public_repos,followers,assignees,analyzed_repos,avg_size,avg_stargazers,avg_subscribers,avg_forks,avg_issues,avg_issue_ratio,avg_issue_days,avg_loc,avg_sqale_index,avg_debt_ratio,pull_requests,accepted_pr,contrib_repos,avg_commits,avg_addition,avg_deletion,avg_changed_files,avg_days_interval) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);// id
+		ps.setLong(2, user.getUserId());// user_id
+		ps.setString(3, user.getUserURL());// user_html
+		ps.setString(4, user.getLogin());// user_login
+		ps.setString(5, user.getName());// user_name
+		ps.setInt(6, user.getNumOfPublicRepos());// public_repos
+		ps.setLong(7, user.getFollowers());// followers
+		ps.setLong(8, user.getNumOfAssignees());// assignees
+		ps.setInt(9, user.getNumOfAnalyzedRepos());// analyzed_repos
+		ps.setDouble(10, user.getAvgSize());// avg_size
+		ps.setDouble(11, user.getAvgStargazersCount());// avg_stargazers
+		ps.setDouble(12, user.getAvgSubscribersCount());// avg_subscribers
+		ps.setDouble(13, user.getAvgForksCount());// avg_forks
+		ps.setDouble(14, user.getAvgIssuesCount());// avg_issues
+		ps.setDouble(15, user.getAvgHandledIssuesRatio());// avg_issue_ratio
+		ps.setDouble(16, user.getAvgIssueHandledDays());// avg_issue_days
+		ps.setDouble(17, user.getAvgMajorLanguageLOC());// avg_loc
+		ps.setDouble(18, user.getAvgSqaleIndex());// avg_sqale_index
+		ps.setDouble(19, user.getAvgDebtRatio());// avg_debt_ratio
+		ps.setDouble(20, user.getNumOfPullRequest());// pull_requests
+		ps.setDouble(21, user.getNumOfAcceptedPR());// accepted_pr
+		ps.setDouble(22, user.getNumOfContributedRepos());// contrib_repos
+		ps.setDouble(23, user.getAvgCommits());// avg_commits
+		ps.setDouble(24, user.getAvgAdditions());// avg_addition
+		ps.setDouble(25, user.getAvgDeletions());// avg_deletion
+		ps.setDouble(26, user.getAvgChangedFiles());// avg_changed_files
+		ps.setDouble(27, user.getAvgDaysIntervalOfPR());// avg_days_interval
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			if(rs.next()){
+				ps.close();//close statement to release resource
+				return rs.getInt(1);
+			}			
+			return 0;
+		}else
+			throw new SQLException("Creating user failed, no rows affected during insert operation of user "+user.getUserId());
 	}
 	
-	/*** Function of connecting database ***/
-	private static Connection getConnection() {
-		Connection con = null; // create temporary connection
-		try {
-			Class.forName("com.mysql.jdbc.Driver"); // load JDBC driver
-			// create database connection
-			con = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/eptd", "root",
-					"loveon1225");
-		} catch (Exception e) {
-			System.out.println("Database connection failed: " + e.getMessage());
+	public int insert(long repoID,int contributors) throws SQLException{
+		final String sql = "INSERT IGNORE INTO major_repo (id,repo_id,contributors) VALUES (?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, repoID);//repo_id
+		ps.setInt(3, contributors);//contributors
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			if(rs.next()){
+				ps.close();//close statement to release resource
+				return rs.getInt(1);
+			}			
+			return 0;
+		}else
+			throw new SQLException("Creating user failed, no rows affected during insert operation of major repo "+repoID);
+	}
+	
+	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws SQLException{
+		if(!isMajorRepo)
+			return connect(user_id,repo_id);
+		final String sql = "INSERT INTO repo_users (id,repo_id,user_id) VALUES (?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, repo_id);//repo_id
+		ps.setLong(3, user_id);//user_id
+		if (ps.executeUpdate() == 0)
+			throw new SQLException("Creating connection between major repo "+repo_id+" and user "+user_id+" failed, no rows affected.");
+		else {
+			ResultSet rs = ps.getGeneratedKeys();
+			if(rs.next()){
+				ps.close();//close statement to release resource
+				return rs.getInt(1);
+			}			
+			return 0;
 		}
-		return con;
+	}
+	
+	public int connect(long user_id,long repo_id) throws SQLException{
+		final String sql = "INSERT INTO user_repos (id,user_id,repo_id) VALUES (?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, user_id);//repo_id
+		ps.setLong(3, repo_id);//user_id
+		if (ps.executeUpdate() == 0)
+			throw new SQLException("Creating connection between user "+user_id+" and repo "+repo_id+" failed, no rows affected.");
+		else {
+			ResultSet rs = ps.getGeneratedKeys();
+			if(rs.next()){
+				ps.close();//close statement to release resource
+				return rs.getInt(1);
+			}			
+			return 0;
+		}
+	}
+	
+	public ArrayList<Long> getRepoIDs(int currentProgress) throws SQLException{
+		final String sql = "SELECT repo_id FROM repo WHERE id>?";
+		ArrayList<Long> resp = new ArrayList<Long>();
+		PreparedStatement ps = conn.prepareStatement(sql);
+		if(currentProgress > 0)
+			ps.setInt(1, currentProgress);
+		else
+			ps.setInt(1, 0);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			resp.add(rs.getLong("repo_id"));
+		}
+		if(resp.size()<=0){
+			throw new SQLException("Getting investigated repos where record id>"+currentProgress+" failed, no rows selected.");
+		}else{
+			ps.close();//close statement to release resource
+			return resp;
+		}
 	}
 }

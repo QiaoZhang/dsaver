@@ -5,21 +5,11 @@
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
   <servlet>
-  	<servlet-name>HelloWorld</servlet-name>
-  	<display-name>HelloWorld</display-name>
-  	<description></description>
-  	<servlet-class>HelloWorld</servlet-class>
-  </servlet>
-  <servlet>
   	<servlet-name>DataSaver</servlet-name>
   	<display-name>DataSaver</display-name>
-  	<description></description>
+  	<description>Saving major repository data into integrated database</description>
   	<servlet-class>com.eptd.dsaver.servlet.DataSaver</servlet-class>
   </servlet>
-  <servlet-mapping>
-  	<servlet-name>HelloWorld</servlet-name>
-  	<url-pattern>/HelloWorld</url-pattern>
-  </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>DataSaver</servlet-name>
   	<url-pattern>/DataSaver</url-pattern>

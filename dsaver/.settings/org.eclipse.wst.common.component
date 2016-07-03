@@ -5,7 +5,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
-        <property name="context-root" value="dsaver"/>
         <property name="java-output-path" value="/dsaver/target/classes"/>
+        <property name="context-root" value="dsaver"/>
     </wb-module>
 </project-modules>
