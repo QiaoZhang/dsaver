@@ -21,7 +21,7 @@ public class MajorRepoProcessor {
 		resp.addProperty("success", true);
 		try {
 			dbo = new DBOperation();
-			int id = dbo.insert(repo.getProjectID(), repo.getContributors().size());
+			int id = dbo.insert(repo);
 			if(id > 0)
 				resp.addProperty("generated_id", id);
 			else if(id == 0)

@@ -54,6 +54,12 @@ CREATE TABLE repo
 	avg_days double unsigned DEFAULT 0.0 COMMENT 'average days between issue created and first qualified event',
 	-- creation date of repository
 	created_date timestamp DEFAULT '1970-01-01 00:00:01.000000' COMMENT 'creation date of repository',
+	-- number of loc of major language
+	loc int unsigned DEFAULT 0 COMMENT 'number of loc of major language',
+	-- sqale index with unit of mins
+	sqale_index int unsigned DEFAULT 0 COMMENT 'sqale index with unit of mins',
+	-- sqale technical debt ratio
+	debt_ratio double unsigned DEFAULT 0.0 COMMENT 'sqale technical debt ratio',
 	PRIMARY KEY (id),
 	UNIQUE (repo_id)
 );

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 
+import com.eptd.dsaver.core.MajorRepository;
 import com.eptd.dsaver.core.Repository;
 import com.eptd.dsaver.core.User;
 
@@ -46,7 +47,7 @@ public class DBOperation {
 
 	public int insert(Repository repo)
 			throws SQLException {
-		final String sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		final String sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,loc,sqale_index,debt_ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);// id
 		ps.setLong(2, repo.getProjectID());// repo_id
@@ -64,15 +65,28 @@ public class DBOperation {
 		ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
 		ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
 		ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
+		if(repo.getSonarMetrics().size()>0){
+			ps.setLong(17, repo.getSonarMetrics().get(0).getValue().longValue());//loc
+			ps.setLong(18, repo.getSonarMetrics().get(1).getValue().longValue());//sqale_index
+			ps.setDouble(19, repo.getSonarMetrics().get(2).getValue());//debt_ratio
+		}else{
+			ps.setNull(17, Types.INTEGER);
+			ps.setNull(18, Types.INTEGER);
+			ps.setNull(19, Types.DOUBLE);
+		}
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
 			if(rs.next()){
-				ps.close();//close statement to release resource
-				return rs.getInt(1);
-			}			
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
 			return 0;
-		}else
+		}else{
+			ps.close();//close statement to release resource
 			throw new SQLException("Creating user failed, no rows affected during insert operation of repo "+repo.getProjectID());
+		}
 	}
 
 	public int insert(User user) throws SQLException {
@@ -107,30 +121,76 @@ public class DBOperation {
 		ps.setDouble(27, user.getAvgDaysIntervalOfPR());// avg_days_interval
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
 			if(rs.next()){
-				ps.close();//close statement to release resource
-				return rs.getInt(1);
-			}			
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
 			return 0;
-		}else
+		}else{
+			ps.close();//close statement to release resource
 			throw new SQLException("Creating user failed, no rows affected during insert operation of user "+user.getUserId());
+		}
 	}
 	
-	public int insert(long repoID,int contributors) throws SQLException{
-		final String sql = "INSERT IGNORE INTO major_repo (id,repo_id,contributors) VALUES (?,?,?)";
+	public int insert(MajorRepository repo) throws SQLException{
+		String sql = "INSERT IGNORE INTO major_repo (id,repo_id,contributors) VALUES (?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);//id
-		ps.setLong(2, repoID);//repo_id
-		ps.setInt(3, contributors);//contributors
+		ps.setLong(2, repo.getProjectID());//repo_id
+		ps.setInt(3, repo.getContributors().size());//contributors
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
 			if(rs.next()){
-				ps.close();//close statement to release resource
-				return rs.getInt(1);
-			}			
+				rs.close();
+				sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,loc,sqale_index,debt_ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				ps = conn.prepareStatement(sql);
+				ps.setNull(1, Types.INTEGER);// id
+				ps.setLong(2, repo.getProjectID());// repo_id
+				ps.setString(3, repo.getRepositoryURL());// repo_url
+				ps.setString(4, repo.getRepositoryHTML());// repo_html
+				ps.setString(5, repo.getProjectName());// repo_name
+				ps.setString(6, repo.getOwnerLogin());// owner_login
+				ps.setString(7, repo.getUserType());// owner_type
+				ps.setString(8, repo.getLanguage());// major_language
+				ps.setString(9, repo.getVersion());// version
+				ps.setLong(10, repo.getSize());// size
+				ps.setLong(11, repo.getStargazersCount());// stargazers
+				ps.setLong(12, repo.getForksCount());// forks
+				ps.setLong(13, repo.getIssuesCount());// issues
+				ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
+				ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
+				ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
+				if(repo.getSonarMetrics().size()>0){
+					ps.setLong(17, repo.getSonarMetrics().get(0).getValue().longValue());//loc
+					ps.setLong(18, repo.getSonarMetrics().get(1).getValue().longValue());//sqale_index
+					ps.setDouble(19, repo.getSonarMetrics().get(2).getValue());//debt_ratio
+				}else{
+					ps.setNull(17, Types.INTEGER);
+					ps.setNull(18, Types.INTEGER);
+					ps.setNull(19, Types.DOUBLE);
+				}
+				if (ps.executeUpdate() >= 0){
+					ResultSet rs_repo = ps.getGeneratedKeys();
+					ps.close();//close statement to release resource
+					if(rs_repo.next()){
+						int val = rs_repo.getInt(1);
+						rs_repo.close();
+						return val;
+					}
+					return 0;
+				}else{
+					ps.close();//close statement to release resource
+					throw new SQLException("Creating user failed, no rows affected during insert operation of repo "+repo.getProjectID());
+				}
+			}
 			return 0;
-		}else
-			throw new SQLException("Creating user failed, no rows affected during insert operation of major repo "+repoID);
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating user failed, no rows affected during insert operation of major repo "+repo.getProjectID());
+		}
 	}
 	
 	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws SQLException{
@@ -141,14 +201,17 @@ public class DBOperation {
 		ps.setNull(1, Types.INTEGER);//id
 		ps.setLong(2, repo_id);//repo_id
 		ps.setLong(3, user_id);//user_id
-		if (ps.executeUpdate() == 0)
+		if (ps.executeUpdate() == 0){
+			ps.close();//close statement to release resource
 			throw new SQLException("Creating connection between major repo "+repo_id+" and user "+user_id+" failed, no rows affected.");
-		else {
+		}else {
 			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
 			if(rs.next()){
-				ps.close();//close statement to release resource
-				return rs.getInt(1);
-			}			
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
 			return 0;
 		}
 	}
@@ -159,18 +222,22 @@ public class DBOperation {
 		ps.setNull(1, Types.INTEGER);//id
 		ps.setLong(2, user_id);//repo_id
 		ps.setLong(3, repo_id);//user_id
-		if (ps.executeUpdate() == 0)
+		if (ps.executeUpdate() == 0){
+			ps.close();//close statement to release resource
 			throw new SQLException("Creating connection between user "+user_id+" and repo "+repo_id+" failed, no rows affected.");
-		else {
+		}else {
 			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
 			if(rs.next()){
-				ps.close();//close statement to release resource
-				return rs.getInt(1);
-			}			
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
 			return 0;
 		}
 	}
 	
+	@Deprecated
 	public ArrayList<Long> getRepoIDs(int currentProgress) throws SQLException{
 		final String sql = "SELECT repo_id FROM repo WHERE id>?";
 		ArrayList<Long> resp = new ArrayList<Long>();
@@ -183,11 +250,17 @@ public class DBOperation {
 		while(rs.next()){
 			resp.add(rs.getLong("repo_id"));
 		}
+		rs.close();
 		if(resp.size()<=0){
+			ps.close();//close statement to release resource
 			throw new SQLException("Getting investigated repos where record id>"+currentProgress+" failed, no rows selected.");
 		}else{
 			ps.close();//close statement to release resource
 			return resp;
 		}
+	}
+	
+	protected void finalize() throws SQLException{
+		this.conn.close();
 	}
 }

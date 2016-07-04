@@ -40,18 +40,23 @@ public class DataSaver extends HttpServlet {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
 		MajorRepository majorRepo = gson.fromJson(reader, MajorRepository.class);
 		//insert MajorRepository data into database
-		MajorRepoProcessor processor = new MajorRepoProcessor(majorRepo);
-		JsonObject resp = processor.process();
-		//response with json data
-		response.setContentType("application/json");
-		if(resp.get("success").getAsBoolean()){
-			respStr.addProperty("success", true);
-			//respStr.add("completed_repos", resp.get("completed_repos").getAsJsonArray());
+		if(majorRepo.getProjectID() != 0){
+			MajorRepoProcessor processor = new MajorRepoProcessor(majorRepo);
+			JsonObject resp = processor.process();
+			//response with json data
+			response.setContentType("application/json");
+			if(resp.get("success").getAsBoolean()){
+				respStr.addProperty("success", true);
+				//respStr.add("completed_repos", resp.get("completed_repos").getAsJsonArray());
+			}else{
+				respStr.addProperty("success", false);
+				respStr.add("error_msg", resp.get("error_messages").getAsJsonArray());
+			}
+			response.getWriter().append(respStr.toString());
 		}else{
 			respStr.addProperty("success", false);
-			respStr.add("error_msg", resp.get("error_messages").getAsJsonArray());
+			respStr.addProperty("error_msg", "Invalid repo data attached in request entity.");
 		}
-		response.getWriter().append(respStr.toString());
 	}
 
 }
