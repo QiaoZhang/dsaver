@@ -1,21 +1,46 @@
 SET SESSION FOREIGN_KEY_CHECKS=0;
 
+DROP TABLE IF EXISTS clients;
 DROP TABLE IF EXISTS major_repo;
 DROP TABLE IF EXISTS repo;
 DROP TABLE IF EXISTS repo_users;
+DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS user_repos;
 
 /* Create Tables */
 
+CREATE TABLE clients
+(
+	-- client id whom the task is assigned to
+	client_id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'client id whom the task is assigned to',
+	-- finger print to differentiate dminer clients
+	finger_print varchar(50) DEFAULT 'Unknown' COMMENT 'finger print to differentiate dminer clients',
+	-- username of github account
+	username varchar(100) DEFAULT 'Unknown' COMMENT 'username of github account',
+	-- password of github account
+	password varchar(100) DEFAULT 'Unknown' COMMENT 'password of github account',
+	-- github developer app client id
+	app_id varchar(100) DEFAULT 'Unknown' COMMENT 'github developer app client id',
+	-- github developer app client secret
+	app_secret varchar(200) DEFAULT 'Unknown' COMMENT 'github developer app client secret',
+	last_update timestamp DEFAULT '1970-01-01 00:00:01.000000',
+	PRIMARY KEY (client_id),
+	UNIQUE (finger_print)
+);
+
+
 CREATE TABLE major_repo
 (
-	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
+	-- client id whom the task is assigned to
+	client_id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'client id whom the task is assigned to',
 	-- github repository id
-	repo_id int unsigned DEFAULT 0 COMMENT 'github repository id',
+	repo_id int unsigned DEFAULT 0 NOT NULL COMMENT 'github repository id',
+	-- task id whom the major repo belongs to
+	task_id int unsigned zerofill COMMENT 'task id whom the major repo belongs to',
 	-- number of contributors of the major repository
 	contributors int unsigned DEFAULT 0 COMMENT 'number of contributors of the major repository',
-	PRIMARY KEY (id),
+	PRIMARY KEY (client_id),
 	UNIQUE (repo_id)
 );
 
@@ -54,12 +79,6 @@ CREATE TABLE repo
 	avg_days double unsigned DEFAULT 0.0 COMMENT 'average days between issue created and first qualified event',
 	-- creation date of repository
 	created_date timestamp DEFAULT '1970-01-01 00:00:01.000000' COMMENT 'creation date of repository',
-	-- number of loc of major language
-	loc int unsigned DEFAULT 0 COMMENT 'number of loc of major language',
-	-- sqale index with unit of mins
-	sqale_index int unsigned DEFAULT 0 COMMENT 'sqale index with unit of mins',
-	-- sqale technical debt ratio
-	debt_ratio double unsigned DEFAULT 0.0 COMMENT 'sqale technical debt ratio',
 	PRIMARY KEY (id),
 	UNIQUE (repo_id)
 );
@@ -70,16 +89,49 @@ CREATE TABLE repo_users
 	-- record id
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'record id',
 	-- github repository id
-	repo_id int unsigned DEFAULT 0 COMMENT 'github repository id',
+	repo_id int unsigned COMMENT 'github repository id',
 	-- github user id
-	user_id int unsigned DEFAULT 0 COMMENT 'github user id',
+	user_id int unsigned COMMENT 'github user id',
 	PRIMARY KEY (id)
+);
+
+
+CREATE TABLE tasks
+(
+	-- task id whom the major repo belongs to
+	task_id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'task id whom the major repo belongs to',
+	-- client id whom the task is assigned to
+	client_id int unsigned zerofill DEFAULT 0 COMMENT 'client id whom the task is assigned to',
+	-- either unassigned, assigned, open, close
+	state varchar(50) COMMENT 'either unassigned, assigned, open, close',
+	-- number of total repositories of this task
+	-- 
+	total int unsigned DEFAULT 0 COMMENT 'number of total repositories of this task
+',
+	-- number of successly recorded major repository info
+	success int unsigned DEFAULT 0 COMMENT 'number of successly recorded major repository info',
+	-- number of unsucessfully recorded major repository info
+	failed int unsigned DEFAULT 0 COMMENT 'number of unsucessfully recorded major repository info',
+	-- search query parameter - language
+	language varchar(50) COMMENT 'search query parameter - language',
+	-- search query parameter - user name
+	user varchar(200) COMMENT 'search query parameter - user name',
+	-- search query parameter - size
+	size varchar(50) COMMENT 'search query parameter - size',
+	-- search query parameter - stars
+	stars varchar(50) BINARY COMMENT 'search query parameter - stars',
+	-- search query parameter - forks
+	forks varchar(50) COMMENT 'search query parameter - forks',
+	-- search query parameter - stars
+	created varchar(50) COMMENT 'search query parameter - stars',
+	PRIMARY KEY (task_id)
 );
 
 
 CREATE TABLE user
 (
-	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
+	-- task id whom the major repo belongs to
+	task_id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'task id whom the major repo belongs to',
 	-- github user id
 	user_id int unsigned DEFAULT 0 COMMENT 'github user id',
 	-- github user api url
@@ -134,7 +186,7 @@ CREATE TABLE user
 	avg_changed_files double unsigned DEFAULT 0.0 COMMENT 'average number of files changed among pull requests of the user',
 	-- average days interval between two accepted pull requests of the user
 	avg_days_interval double unsigned DEFAULT 0.0 COMMENT 'average days interval between two accepted pull requests of the user',
-	PRIMARY KEY (id),
+	PRIMARY KEY (task_id),
 	UNIQUE (user_id)
 );
 
@@ -143,9 +195,9 @@ CREATE TABLE user_repos
 (
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
 	-- github user id
-	user_id int unsigned DEFAULT 0 COMMENT 'github user id',
+	user_id int unsigned COMMENT 'github user id',
 	-- github repository id
-	repo_id int unsigned DEFAULT 0 COMMENT 'github repository id',
+	repo_id int unsigned COMMENT 'github repository id',
 	PRIMARY KEY (id)
 );
 

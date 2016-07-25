@@ -1,0 +1,53 @@
+body {
+	font-family:'Microsoft yahei', Arial, sans-serif;
+	font-size:14px;
+	font-weight:350;
+	line-height:1.6em;
+	color:#656565;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family:'Microsoft yahei', Arial, sans-serif;
+	font-weight:700;
+	line-height:1.1em;
+	color:#333;
+	margin-bottom: 20px;
+}
+
+/* Layout*/
+.container {
+	padding:0 20px 0 20px;
+	position:relative;
+}
+
+.row {
+	margin-bottom:30px;
+}
+
+.wrapper{
+	width:100%;
+	margin:0;	
+	padding:0;
+}
+
+.wrapper .row, .row .row {
+	margin-bottom:10px;
+}
+
+.table-responsive {
+	margin-top: -15px;
+	padding: 15px;
+}
+
+/* Content */
+#content {
+	position:relative;
+	background:#fff;
+	padding:50px 0 40px 0;
+}
+
+/* Divider */
+.solidline {
+	border-top:1px solid #f5f5f5;
+	margin:0 0 30px;
+}

@@ -10,8 +10,38 @@
   	<description>Saving major repository data into integrated database</description>
   	<servlet-class>com.eptd.dsaver.servlet.DataSaver</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>TaskDistributor</servlet-name>
+  	<display-name>TaskDistributor</display-name>
+  	<description></description>
+  	<servlet-class>com.eptd.dsaver.servlet.TaskDistributor</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>TaskPoster</servlet-name>
+  	<display-name>TaskPoster</display-name>
+  	<description></description>
+  	<servlet-class>com.eptd.dsaver.servlet.TaskPoster</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>ClientInfo</servlet-name>
+  	<display-name>ClientInfo</display-name>
+  	<description></description>
+  	<servlet-class>com.eptd.dsaver.servlet.ClientInfo</servlet-class>
+  </servlet>
   <servlet-mapping>
   	<servlet-name>DataSaver</servlet-name>
   	<url-pattern>/DataSaver</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>TaskDistributor</servlet-name>
+  	<url-pattern>/TaskDistributor</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>TaskPoster</servlet-name>
+  	<url-pattern>/TaskPoster</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>ClientInfo</servlet-name>
+  	<url-pattern>/ClientInfo</url-pattern>
   </servlet-mapping>
 </web-app>

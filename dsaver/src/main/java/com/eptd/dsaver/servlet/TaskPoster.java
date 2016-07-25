@@ -9,43 +9,43 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.eptd.dsaver.core.MajorRepository;
-import com.eptd.dsaver.dbo.MajorRepoProcessor;
+import com.eptd.dsaver.core.Task;
+import com.eptd.dsaver.dbo.TaskPostingProcessor;
 import com.fatboyindustrial.gsonjodatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-public class DataSaver extends HttpServlet {
+public class TaskPoster extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    public DataSaver() {
-        super();        
+
+    public TaskPoster() {
+        super();
     }
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		JsonObject respStr = new JsonObject();
-		//convert posted data into MajorRepository data class
+		//convert posted data into Task data class
 		Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		MajorRepository majorRepo = gson.fromJson(reader, MajorRepository.class);
+		Task task = gson.fromJson(reader, Task.class);
 		//insert MajorRepository data into database
-		if(majorRepo.getProjectID() != 0){
-			MajorRepoProcessor processor = new MajorRepoProcessor(majorRepo);
+		if(task.getClientID() != 0){
+			TaskPostingProcessor processor = new TaskPostingProcessor(task);
 			JsonObject resp = processor.process();
 			//response with json data
 			response.setContentType("application/json");
-			if(resp.get("success").getAsBoolean())
+			if(resp.get("success").getAsBoolean()){
 				respStr.addProperty("success", true);
-			else{
+			}else{
 				respStr.addProperty("success", false);
 				respStr.add("error_msg", resp.get("error_messages").getAsJsonArray());
 			}
+			response.getWriter().append(respStr.toString());
 		}else{
 			respStr.addProperty("success", false);
 			respStr.addProperty("error_msg", "Invalid repo data attached in request entity.");
 		}
-		response.getWriter().append(respStr.toString());
 	}
 
 }

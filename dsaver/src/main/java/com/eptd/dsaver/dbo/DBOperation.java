@@ -9,8 +9,12 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 
+import org.joda.time.DateTime;
+
+import com.eptd.dsaver.core.Client;
 import com.eptd.dsaver.core.MajorRepository;
 import com.eptd.dsaver.core.Repository;
+import com.eptd.dsaver.core.Task;
 import com.eptd.dsaver.core.User;
 
 public class DBOperation {
@@ -235,6 +239,165 @@ public class DBOperation {
 			}
 			return 0;
 		}
+	}
+	
+	public int insert(Client client) throws SQLException{
+		final String sql = "INSERT INTO clients (client_id,finger_print,username,password,app_id,app_secret,last_update) VALUES (?,?,?,?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setInt(1, client.getClientID());//client_id
+		ps.setString(2, client.getFingerPrint());//finger_print
+		ps.setString(3, client.getUsername());//username
+		ps.setString(4, client.getPassword());//password
+		ps.setString(5, client.getAppClientID());//app_id
+		ps.setString(6, client.getAppClientSecret());//app_secret
+		ps.setTimestamp(7, new Timestamp(client.getLastUpdate().getMillis()));//last_update
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating client failed, no rows affected during insert operation of client "+client.getAppClientID());
+		}
+	}
+	
+	public int insert(Task task) throws SQLException{
+		final String sql = "INSERT INTO tasks (task_id,client_id,state,total,success,failed,language,user,size,stars,forks,created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//task_id - auto-increment
+		//client_id - default as 0
+		if(task.getClientID()!=0)
+			ps.setInt(2, task.getClientID());
+		else
+			throw new SQLException("No Client ID provided.");
+		ps.setNull(3, Types.VARCHAR);//state - default as assigned
+		//total - default as 0
+		if(task.getTotal()!=0)
+			ps.setInt(4, task.getTotal());
+		else
+			throw new SQLException("No total task count provided.");
+		ps.setNull(5, Types.INTEGER);//success - default as 0
+		ps.setNull(6, Types.INTEGER);//failed - default as 0
+		//language - default as NULL
+		if(task.getParaLanguage()!=null)
+			ps.setString(7, task.getParaLanguage());
+		else
+			ps.setNull(7, Types.VARCHAR);
+		//user
+		if(task.getParaUser()!=null)
+			ps.setString(8, task.getParaUser());
+		else
+			ps.setNull(8, Types.VARCHAR);		
+		//size
+		if(task.getParaSize()!=null)
+			ps.setString(9, task.getParaSize());
+		else
+			ps.setNull(9, Types.VARCHAR);
+		//stars
+		if(task.getParaStars()!=null)
+			ps.setString(10, task.getParaStars());
+		else
+			ps.setNull(10, Types.VARCHAR);
+		//forks - default as NULL
+		if(task.getParaForks()!=null)
+			ps.setString(11, task.getParaForks());
+		else
+			ps.setNull(11, Types.VARCHAR);
+		//created - default as Task Object created
+		ps.setTimestamp(12, new Timestamp(task.getCreated().getMillis()));
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating task failed, no rows affected during insert operation of task "+task.getTaskID());
+		}
+	}
+	
+	public ArrayList<Client> getClientInfo() throws SQLException{
+		ArrayList<Client> clients = new ArrayList<Client>();
+		final String clientSQL = "SELECT * FROM clients";
+		PreparedStatement clientPS = conn.prepareStatement(clientSQL);
+		ResultSet clientRS = clientPS.executeQuery();
+		while(clientRS.next()){
+			clients.add(extractClientInfo(clientRS));
+		}
+		return clients;
+	}
+
+	public Client getClientInfo(String fingerPrint) throws SQLException{
+		final String clientSQL = "SELECT * FROM clients WHERE finger_print = ?";
+		PreparedStatement clientPS = conn.prepareStatement(clientSQL);
+		clientPS.setString(1, fingerPrint);
+		ResultSet clientRS = clientPS.executeQuery();
+		if(clientRS.next())
+			return extractClientInfo(clientRS);
+		return null;
+	}
+	
+	public int updateTask(int taskID, boolean success) throws SQLException{
+		final String sql;
+		if(success)
+			sql = "UPDATE tasks SET success = success + 1 WHERE task_id = ?";
+		else
+			sql = "UPDATE tasks SET failed = failed + 1 WHERE task_id = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setInt(1, taskID);//task_id
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Updating task failed, no rows affected during update operation of task "+taskID);
+		}
+	}
+	
+	private Client extractClientInfo(ResultSet clientRS) throws SQLException{
+		Client client = new Client()
+			.setClientID(clientRS.getInt("client_id"))
+			.setFingerPrint(clientRS.getString("finger_print"))
+			.setUsername(clientRS.getString("username"))
+			.setPassword(clientRS.getString("password"))
+			.setAppClientID(clientRS.getString("app_id"))
+			.setAppClientSecret(clientRS.getString("app_secret"))
+			.setLastUpdate(new DateTime(clientRS.getTimestamp("last_update").getTime()));
+		final String taskSQL = "SELECT * FROM tasks WHERE tasks.client_id = ?";
+		PreparedStatement taskPS = conn.prepareStatement(taskSQL);
+		taskPS.setInt(1, client.getClientID());
+		ResultSet taskRS = taskPS.executeQuery();
+		while(taskRS.next()){
+			client.addTask(new Task()
+				.setTaskID(taskRS.getInt("task_id"))
+				.setClientID(taskRS.getInt("client_id"))
+				.setState(taskRS.getString("state"))
+				.setTotal(taskRS.getInt("total"))
+				.setSuccess(taskRS.getInt("success"))
+				.setFailed(taskRS.getInt("failed"))
+				.setParaLanguage(taskRS.getString("language"))
+				.setParaUser(taskRS.getString("user"))
+				.setParaSize(taskRS.getString("size"))
+				.setParaStars(taskRS.getString("stars"))
+				.setParaForks(taskRS.getString("forks"))
+				.setCreated(new DateTime(taskRS.getTimestamp("created").getTime())));
+		}
+		return client;
 	}
 	
 	@Deprecated

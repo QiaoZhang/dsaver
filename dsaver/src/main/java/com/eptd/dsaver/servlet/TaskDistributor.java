@@ -1,31 +1,21 @@
-package com.eptd.dsaver;
+package com.eptd.dsaver.servlet;
 
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.eptd.dsaver.core.Repository;
-import com.fatboyindustrial.gsonjodatime.Converters;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 /**
- * Servlet implementation class HelloWorld
+ * Servlet implementation class TaskDistributor
  */
-public class HelloWorld extends HttpServlet {
+public class TaskDistributor extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public HelloWorld() {
+    public TaskDistributor() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -35,6 +25,7 @@ public class HelloWorld extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
@@ -42,13 +33,7 @@ public class HelloWorld extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		Repository repo = gson.fromJson(reader, Repository.class);
-
-		response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-        out.println("{\"receive\":\"yes\",\"size\":\""+repo.getRepositoryURL()+"\"}");//repo.getSize()
+		doGet(request, response);
 	}
 
 }

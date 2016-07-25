@@ -36,8 +36,6 @@ public class MajorRepoProcessor {
 					errors.add(response);
 				}
 			}
-			//collect all new repos
-			
 		} catch (Exception e) {
 			resp.remove("success");
 			resp.addProperty("success", false);

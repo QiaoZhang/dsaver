@@ -21,7 +21,6 @@ public class UserProcessor {
 		resp.addProperty("type", "user");
 		resp.addProperty("success", true);
 		try {
-			//insert user into database
 			int id = dbo.insert(user);
 			if(id > 0)
 				resp.addProperty("generated_id", id);

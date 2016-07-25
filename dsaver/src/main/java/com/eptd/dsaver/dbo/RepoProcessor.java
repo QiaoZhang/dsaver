@@ -21,7 +21,6 @@ public class RepoProcessor {
 		resp.addProperty("type", "repo");
 		resp.addProperty("success", true);
 		try {
-			//insert user into database
 			int id = dbo.insert(repo);
 			if(id > 0)
 				resp.addProperty("generated_id", id);
