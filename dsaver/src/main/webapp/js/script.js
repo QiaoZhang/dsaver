@@ -1,3 +1,8 @@
+/*
+ * hand out:
+ * 1. how to find the first td which has "rowspan" attribute under a div with id = "client-1"
+ *     $("#client-1,tr").find("td:first").attr("rowspan");
+ */
 $(document).ready(function(){
 	$(":text").keyup(function(){
 		textClearError();
@@ -5,7 +10,9 @@ $(document).ready(function(){
 	});
 
 	$("#post").click(function(){
-		makeProgress();		
+		//makeProgress();	
+		//alert();
+		$("#client-1,tr").find("div.progress-bar").slice(0,1).attr("style","width: 65%;");
 	});
 });
 
@@ -41,12 +48,12 @@ function updateQuery(id){
 	searchquery = generateQuery(taskObj);
 
 	/* update url*/
-	$("#taskquery").attr("href",baseurl + searchquery);
+	$("#taskquery").attr("href",baseurl + "q=" + searchquery);
 	$("#taskquery").text(searchquery);
 }
 
 function generateQuery(obj){
-	var query = "q=";
+	var query = "";
 	if(obj.paraLanguage != "")
 		query += "language:" + obj.paraLanguage + "+";
 	if(obj.paraSize != "")
@@ -69,48 +76,63 @@ function getClients (){
 		type: 'Get',
 		dataType: 'json',
 		success: function (json){
-			/*
+			appendClients(json);
 			
-			*/
-			if(json.success){
-				for(var i=0;i<json.data.length;i++) {
-					if($("#client-"+json.data[i].clientID).length>0){
-						//client already displayed, update tasks and insert new tasks
-						for(var j=0;j<json.data[i].tasks.length;j++){
-							if(j>$("#client-"+json.data[i].clientID).find("td:first").attr("rowspan")-1){
-								//new tasks that has not been displayed
-							}else{
-								//existing tasks
-							}
-						}
-					}else{
-						//client is not displayed yet, append html code
-						var progress = (json.data[i].tasks[0].success+json.data[i].tasks[0].failed/json.data[i].tasks[0].total).toFixed(2);
-						var content = "<tr id=\"client-"+json.data[i].clientID+"\"><td rowspan=\""+json.data[i].tasks.length+"\">"
-										+json.data[i].clientID+"</td><td rowspan=\""+json.data[i].tasks.length+"\">"
-										+json.data[i].fingerPrint+"</td><td>"
-										+json.data[i].tasks[0].total+"</td><td>"
-										+json.data[i].tasks[0].success+"</td><td>"
-										+json.data[i].tasks[0].failed+"</td><td>"
-										+generateQuery(json.data[i].tasks[0])+"</td><td><div class=\"progress progress-striped active\"><div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
-										+progress+"%;\"><span class=\"sr-only\">"
-										+progress+"%</span></div></div></td></tr>";
-						for(var j=1;j<json.data[i].tasks.length;j++){
-							progress = (json.data[i].tasks[j].success+json.data[i].tasks[j].failed/json.data[i].tasks[j].total).toFixed(2);
-							content += "<tr><td>"
+		}
+	});
+}
+
+function appendClients(json){
+	if(json.success){
+		for(var i=0;i<json.data.length;i++) {
+			if($("#client-"+json.data[i].clientID).length>0){
+				//update the rowspan
+				$("#client-"+json.data[i].clientID+",tr").find("td:first").attr("rowspan",json.data[i].clientID.length);
+				//client already displayed, update tasks and insert new tasks
+				for(var j=0;j<json.data[i].tasks.length;j++){
+					if(j>$("#client-"+json.data[i].clientID+",tr").find("td:first").attr("rowspan")-1){
+						//new tasks that has not been displayed
+						var content = "<tr><td>"
 										+json.data[i].tasks[j].total+"</td><td>"
 										+json.data[i].tasks[j].success+"</td><td>"
 										+json.data[i].tasks[j].failed+"</td><td>"
 										+generateQuery(json.data[i].tasks[j])+"</td><td><div class=\"progress progress-striped active\"><div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
 										+progress+"%;\"><span class=\"sr-only\">"
 										+progress+"%</span></div></div></td></tr>";
-						}
+						$("#client-"+json.data[i].clientID).append(content);
+					}else{
+						//existing tasks
+						$("#client-1,tr").find("div.progress-bar").slice(j,j+1).attr("style","width: 65%;");
 					}
-				}				
-			}else
-				alert(json.error_msg);
-		}
-	});
+				}
+			}else{
+				//client is not displayed yet, append html code
+				var progress = (json.data[i].tasks[0].success+json.data[i].tasks[0].failed/json.data[i].tasks[0].total).toFixed(2);
+				var content = "<div id=\"client-"+json.data[i].clientID+"\">";//div wrapper
+				content += "<tr><td rowspan=\""+json.data[i].tasks.length+"\">"
+							+json.data[i].clientID+"</td><td rowspan=\""+json.data[i].tasks.length+"\">"
+							+json.data[i].fingerPrint+"</td><td>"
+							+json.data[i].tasks[0].total+"</td><td>"
+							+json.data[i].tasks[0].success+"</td><td>"
+							+json.data[i].tasks[0].failed+"</td><td>"
+							+generateQuery(json.data[i].tasks[0])+"</td><td><div class=\"progress progress-striped active\"><div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
+							+progress+"%;\"><span class=\"sr-only\">"
+							+progress+"%</span></div></div></td></tr>";
+				for(var j=1;j<json.data[i].tasks.length;j++){
+					progress = (json.data[i].tasks[j].success+json.data[i].tasks[j].failed/json.data[i].tasks[j].total).toFixed(2);
+					content += "<tr><td>"
+								+json.data[i].tasks[j].total+"</td><td>"
+								+json.data[i].tasks[j].success+"</td><td>"
+								+json.data[i].tasks[j].failed+"</td><td>"
+								+generateQuery(json.data[i].tasks[j])+"</td><td><div class=\"progress progress-striped active\"><div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: "
+								+progress+"%;\"><span class=\"sr-only\">"
+								+progress+"%</span></div></div></td></tr>";
+				}
+				content += "</div>";
+			}
+		}				
+	}else
+		alert(json.error_msg);
 }
 
 function postTask (){
