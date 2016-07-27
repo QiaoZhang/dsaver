@@ -17,7 +17,7 @@ public class TaskPostingProcessor {
 	public JsonObject process(){
 		JsonObject resp = new JsonObject();//return value
 		JsonArray errors = new JsonArray();//collector of next-level errors
-		resp.addProperty("type", "major");
+		resp.addProperty("type", "task");
 		resp.addProperty("success", true);
 		try {
 			dbo = new DBOperation();
@@ -38,6 +38,6 @@ public class TaskPostingProcessor {
 		//add error objects into response object
 		if(errors.size() > 0)
 			resp.add("error_messages", errors);
-		return new JsonObject();
+		return resp;
 	}
 }

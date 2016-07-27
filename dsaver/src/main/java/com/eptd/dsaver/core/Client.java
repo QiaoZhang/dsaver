@@ -14,6 +14,10 @@ public class Client {
 	private DateTime lastUpdate;
 	private ArrayList<Task> tasks;
 	
+	public Client(){
+		tasks = new ArrayList<Task>();
+	}
+	
 	public int getClientID() {
 		return clientID;
 	}
@@ -86,7 +90,8 @@ public class Client {
 		return this;
 	}
 	
-	public void addTask(Task task){
+	public Client addTask(Task task){
 		this.tasks.add(task);
+		return this;
 	}
 }
