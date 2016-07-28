@@ -1,7 +1,7 @@
 /*
  * hand out:
  * 1. how to find the first td which has "rowspan" attribute under a div with id = "client-1"
- *     $("#client-1,tr").find("td:first").attr("rowspan");
+ *     $("#client-1>tr").find("td:first").attr("rowspan");
  * 2. how to display json data
  *     $("#resp").html(syntaxHighlight(json));
  */
@@ -77,11 +77,12 @@ function generateQuery(obj){
  * danger: haven't been updated for 20 mins
  */
 function appendClients(json){
+	$("#resp").html(syntaxHighlight(json));
 	if(json.success){
 		for(var i=0;i<json.data.length;i++) {
 			if($("#client-"+json.data[i].clientID).length>0){
 				//client already displayed, update tasks and insert new tasks
-				var rowspan = $("#client-"+json.data[i].clientID+",tr").find("td:first").attr("rowspan")-1;
+				var rowspan = $("#client-"+json.data[i].clientID+">tr").find("td:first").attr("rowspan")-1;
 				for(var j=0;j<json.data[i].tasks.length;j++){
 					var progress = (json.data[i].tasks[j].success+json.data[i].tasks[j].failed)*100/json.data[i].tasks[j].total;
 					if(j>rowspan){
@@ -94,7 +95,6 @@ function appendClients(json){
 										+progress+'%;"><span class="sr-only">'
 										+progress+'%</span></div></div></td></tr>';
 						//update the rowspan
-						$("#client-"+json.data[i].clientID+",tr").find("td[rowspan]").attr("rowspan",$("#client-"+json.data[i].clientID+",tr").find("td:first").attr("rowspan")+1);
 						$("#client-"+json.data[i].clientID).append(content);
 					}else{
 						//existing tasks
@@ -110,15 +110,22 @@ function appendClients(json){
 						$("#client-"+json.data[i].clientID+">tr").find("td.task-failed").slice(j,j+1).text(json.data[i].tasks[j].failed);
 						$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("style","width: "+progress+"%;");
 						$("#client-"+json.data[i].clientID+">tr").find("span.sr-only").slice(j,j+1).text(progress+"%");
-					}
+					}					
 				}
-
-				
+				$("#client-"+json.data[i].clientID+">tr").find("td[rowspan]").attr("rowspan",json.data[i].tasks.length);		
 			}else{
 				//client is not displayed yet, append html code
-				var progress = (json.data[i].tasks[0].success+json.data[i].tasks[0].failed)*100/json.data[i].tasks[0].total;
+				var progress = 0;
+				//if no task has been assigned to client
+				if(json.data[i].tasks[0]==null){
+					json.data[i].tasks[0].total = 0;
+					json.data[i].tasks[0].success = 0;
+					json.data[i].tasks[0].failed = 0;
+				}else
+					progress = (json.data[i].tasks[0].success+json.data[i].tasks[0].failed)*100/json.data[i].tasks[0].total;
 				//div wrapper
 				$("table").append('<tbody id="client-'+json.data[i].clientID+'"></tbody>');
+				
 				var content = '<tr><td rowspan="'+json.data[i].tasks.length+'">'
 							+json.data[i].clientID+'</td><td rowspan="'+json.data[i].tasks.length+'">'
 							+json.data[i].fingerPrint+'</td><td class="task-total">'
@@ -142,7 +149,7 @@ function appendClients(json){
 			}
 		}				
 	}else
-		alert(json.error_msg);
+		$("#resp").html(syntaxHighlight(json));
 	/*** client info appending and updating testing data ***
 	 * var jsonStr_1 = '{"success":true,"data":[{"clientID":1,"fingerPrint":"test-1","lastUpdate":"2016-07-26T18:00:51.157-05:00","tasks":[{"taskID":0,"clientID":1,"total":20,"success":0,"failed":0,"paraLanguage":"java","paraSize":"4000..40000","created":"2016-07-26T18:00:51.098-05:00"},{"taskID":0,"clientID":1,"total":10,"success":0,"failed":0,"paraLanguage":"java","paraForks":"200..2000","created":"2016-07-26T18:00:51.156-05:00"}]},{"clientID":2,"fingerPrint":"test-2","lastUpdate":"2016-07-26T18:03:06.773-05:00","tasks":[{"taskID":0,"clientID":2,"total":40,"success":0,"failed":0,"paraLanguage":"java","paraSize":"2000..20000","created":"2016-07-26T18:03:06.773-05:00"},{"taskID":0,"clientID":2,"total":20,"success":0,"failed":0,"paraLanguage":"java","paraForks":"400..4000","created":"2016-07-26T18:03:06.773-05:00"}]}]}';
 	 * var json_1 = JSON.parse(jsonStr_1);

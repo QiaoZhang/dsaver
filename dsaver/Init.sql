@@ -103,7 +103,7 @@ CREATE TABLE tasks
 	-- client id whom the task is assigned to
 	client_id int unsigned zerofill DEFAULT 0 COMMENT 'client id whom the task is assigned to',
 	-- either unassigned, assigned, open, close
-	state varchar(50) COMMENT 'either unassigned, assigned, open, close',
+	state varchar(50) DEFAULT 'assigned' COMMENT 'either unassigned, assigned, open, close',
 	-- number of total repositories of this task
 	-- 
 	total int unsigned DEFAULT 0 COMMENT 'number of total repositories of this task

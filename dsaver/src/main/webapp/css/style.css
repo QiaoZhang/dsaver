@@ -53,11 +53,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Json Display */
-pre {
-	background: #fff;
-	padding: 5px; 
-	margin: 5px;
-} 
+pre  {background: #fff; padding: 5px; margin: 5px; } 
 .string { color: green; }
 .number { color: blue; } 
 .boolean { color: red; } 

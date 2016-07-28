@@ -10,6 +10,8 @@ import java.sql.Types;
 import java.util.ArrayList;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 import com.eptd.dsaver.core.Client;
 import com.eptd.dsaver.core.MajorRepository;
@@ -275,14 +277,14 @@ public class DBOperation {
 			ps.setInt(2, task.getClientID());
 		else
 			throw new SQLException("No Client ID provided.");
-		ps.setNull(3, Types.VARCHAR);//state - default as assigned
+		ps.setString(3, "assigned");//state - default as assigned
 		//total - default as 0
 		if(task.getTotal()!=0)
 			ps.setInt(4, task.getTotal());
 		else
 			throw new SQLException("No total task count provided.");
-		ps.setNull(5, Types.INTEGER);//success - default as 0
-		ps.setNull(6, Types.INTEGER);//failed - default as 0
+		ps.setInt(5, 0);//success - default as 0
+		ps.setInt(6, 0);//failed - default as 0
 		//language - default as NULL
 		if(task.getParaLanguage()!=null)
 			ps.setString(7, task.getParaLanguage());
@@ -376,8 +378,8 @@ public class DBOperation {
 			.setUsername(clientRS.getString("username"))
 			.setPassword(clientRS.getString("password"))
 			.setAppClientID(clientRS.getString("app_id"))
-			.setAppClientSecret(clientRS.getString("app_secret"))
-			.setLastUpdate(new DateTime(clientRS.getTimestamp("last_update").getTime()));
+			.setAppClientSecret(clientRS.getString("app_secret"))		
+			.setLastUpdate(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSSSSS").parseDateTime(clientRS.getString("last_update")));	
 		final String taskSQL = "SELECT * FROM tasks WHERE tasks.client_id = ?";
 		PreparedStatement taskPS = conn.prepareStatement(taskSQL);
 		taskPS.setInt(1, client.getClientID());
@@ -395,7 +397,7 @@ public class DBOperation {
 				.setParaSize(taskRS.getString("size"))
 				.setParaStars(taskRS.getString("stars"))
 				.setParaForks(taskRS.getString("forks"))
-				.setCreated(new DateTime(taskRS.getTimestamp("created").getTime())));
+				.setCreated(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSSSSS").parseDateTime(taskRS.getString("created"))));	
 		}
 		return client;
 	}

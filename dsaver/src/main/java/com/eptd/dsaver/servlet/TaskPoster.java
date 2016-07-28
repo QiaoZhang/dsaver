@@ -22,27 +22,6 @@ public class TaskPoster extends HttpServlet {
     public TaskPoster() {
         super();
     }
-    
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	JsonObject respStr = new JsonObject();
-		Task task = new Task()
-				.setClientID(2)
-				.setTotal(40)
-				.setParaLanguage("java")
-				.setParaSize("2000..20000");
-		TaskPostingProcessor processor = new TaskPostingProcessor(task);
-		JsonObject resp = processor.process();
-		//response with json data
-		response.setContentType("application/json");
-		if(resp.get("success").getAsBoolean()){
-			respStr.addProperty("success", true);
-			respStr.addProperty("generated_id", resp.get("generated_id").getAsInt());
-		}else{
-			respStr.addProperty("success", false);
-			respStr.add("error_msg", resp.get("error_messages").getAsJsonArray());
-		}
-		response.getWriter().append(respStr.toString());
-	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		JsonObject respStr = new JsonObject();
@@ -50,12 +29,12 @@ public class TaskPoster extends HttpServlet {
 		Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
 		Task task = gson.fromJson(reader, Task.class);
-		//insert MajorRepository data into database
+		//insert Task data into database
+		response.setContentType("application/json");
 		if(task.getClientID() != 0){
 			TaskPostingProcessor processor = new TaskPostingProcessor(task);
 			JsonObject resp = processor.process();
-			//response with json data
-			response.setContentType("application/json");
+			//response with json data			
 			if(resp.get("success").getAsBoolean()){
 				respStr.addProperty("success", true);
 				respStr.addProperty("generated_id", resp.get("generated_id").getAsInt());
