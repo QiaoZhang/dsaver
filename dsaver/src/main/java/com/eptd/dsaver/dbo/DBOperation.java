@@ -9,8 +9,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import com.eptd.dsaver.core.Client;
@@ -400,29 +398,6 @@ public class DBOperation {
 				.setCreated(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSSSSS").parseDateTime(taskRS.getString("created"))));	
 		}
 		return client;
-	}
-	
-	@Deprecated
-	public ArrayList<Long> getRepoIDs(int currentProgress) throws SQLException{
-		final String sql = "SELECT repo_id FROM repo WHERE id>?";
-		ArrayList<Long> resp = new ArrayList<Long>();
-		PreparedStatement ps = conn.prepareStatement(sql);
-		if(currentProgress > 0)
-			ps.setInt(1, currentProgress);
-		else
-			ps.setInt(1, 0);
-		ResultSet rs = ps.executeQuery();
-		while(rs.next()){
-			resp.add(rs.getLong("repo_id"));
-		}
-		rs.close();
-		if(resp.size()<=0){
-			ps.close();//close statement to release resource
-			throw new SQLException("Getting investigated repos where record id>"+currentProgress+" failed, no rows selected.");
-		}else{
-			ps.close();//close statement to release resource
-			return resp;
-		}
 	}
 	
 	protected void finalize() throws SQLException{

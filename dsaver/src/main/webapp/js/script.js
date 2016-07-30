@@ -16,9 +16,13 @@ $(document).ready(function(){
 	});
 	
 	$("#post").click(function(){
-		postTask();
+		postTask();		
 	});
-	
+
+	getClients();//init
+	setInterval(function() {
+	  getClients();
+	}, 1000 * 20); // where X is your every X minutes
 });
 
 //globle task object
@@ -77,27 +81,43 @@ function generateQuery(obj){
  * danger: haven't been updated for 20 mins
  */
 function appendClients(json){
-	$("#resp").html(syntaxHighlight(json));
 	if(json.success){
 		for(var i=0;i<json.data.length;i++) {
-			if($("#client-"+json.data[i].clientID).length>0){
+			if(json.data[i].tasks.length==0){
+				if($("#client-"+json.data[i].clientID).length==0){
+					//div wrapper
+					$("table").append('<tbody id="client-'+json.data[i].clientID+'"></tbody>');
+					var content = '<tr><td rowspan="'+json.data[i].tasks.length+'">'
+							+json.data[i].clientID+'</td><td rowspan="'+json.data[i].tasks.length+'">'
+							+json.data[i].fingerPrint+'</td><td class="task-total">'
+							+'</td><td class="task-success">'
+							+'</td><td class="task-failed">'
+							+'</td><td>'
+							+'</td><td><div class="progress progress-striped active"><div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+0+'%;"><span class="sr-only">'
+							+0+'%</span></div></div></td></tr>';
+					$("#client-"+json.data[i].clientID).html(content);
+				}
+			}else if($("#client-"+json.data[i].clientID).length>0){
 				//client already displayed, update tasks and insert new tasks
 				var rowspan = $("#client-"+json.data[i].clientID+">tr").find("td:first").attr("rowspan")-1;
 				for(var j=0;j<json.data[i].tasks.length;j++){
 					var progress = (json.data[i].tasks[j].success+json.data[i].tasks[j].failed)*100/json.data[i].tasks[j].total;
-					if(j>rowspan){
+					if(rowspan!=-1&&j>rowspan){
 						//new tasks that has not been displayed
 						var content = '<tr><td class="task-total">'
 										+json.data[i].tasks[j].total+'</td><td class="task-success">'
 										+json.data[i].tasks[j].success+'</td><td class="task-failed">'
 										+json.data[i].tasks[j].failed+'</td><td>'
-										+generateQuery(json.data[i].tasks[j])+'</td><td><div class="progress progress-striped active"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+										+generateQuery(json.data[i].tasks[j])+'</td><td><div class="progress progress-striped active"><div class="progress-bar '
+										+progressStyle(json.data[i].tasks[j].state)+'" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
 										+progress+'%;"><span class="sr-only">'
 										+progress+'%</span></div></div></td></tr>';
 						//update the rowspan
 						$("#client-"+json.data[i].clientID).append(content);
 					}else{
 						//existing tasks
+						/*
 						if(json.data[i].tasks[j].state == "error")
 							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-danger")//haven't updated for 20 mins or error
 						else if(json.data[i].tasks[j].state == "open")
@@ -105,34 +125,28 @@ function appendClients(json){
 						else if(json.data[i].tasks[j].state == "closed")
 							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-info");//finished task
 						else
-							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-warning");//assigned
+							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-warning");//assigned*/
 						$("#client-"+json.data[i].clientID+">tr").find("td.task-success").slice(j,j+1).text(json.data[i].tasks[j].success);
 						$("#client-"+json.data[i].clientID+">tr").find("td.task-failed").slice(j,j+1).text(json.data[i].tasks[j].failed);
 						$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("style","width: "+progress+"%;");
+						$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar "+progressStyle(json.data[i].tasks[j].state));//assigned
 						$("#client-"+json.data[i].clientID+">tr").find("span.sr-only").slice(j,j+1).text(progress+"%");
 					}					
 				}
-				$("#client-"+json.data[i].clientID+">tr").find("td[rowspan]").attr("rowspan",json.data[i].tasks.length);		
+				$("#client-"+json.data[i].clientID+">tr").find("td[rowspan]").attr("rowspan",json.data[i].tasks.length);	
 			}else{
 				//client is not displayed yet, append html code
-				var progress = 0;
-				//if no task has been assigned to client
-				if(json.data[i].tasks[0]==null){
-					json.data[i].tasks[0].total = 0;
-					json.data[i].tasks[0].success = 0;
-					json.data[i].tasks[0].failed = 0;
-				}else
-					progress = (json.data[i].tasks[0].success+json.data[i].tasks[0].failed)*100/json.data[i].tasks[0].total;
+				var progress = (json.data[i].tasks[0].success+json.data[i].tasks[0].failed)*100/json.data[i].tasks[0].total;
 				//div wrapper
-				$("table").append('<tbody id="client-'+json.data[i].clientID+'"></tbody>');
-				
+				$("table").append('<tbody id="client-'+json.data[i].clientID+'"></tbody>');				
 				var content = '<tr><td rowspan="'+json.data[i].tasks.length+'">'
 							+json.data[i].clientID+'</td><td rowspan="'+json.data[i].tasks.length+'">'
 							+json.data[i].fingerPrint+'</td><td class="task-total">'
 							+json.data[i].tasks[0].total+'</td><td class="task-success">'
 							+json.data[i].tasks[0].success+'</td><td class="task-failed">'
 							+json.data[i].tasks[0].failed+'</td><td>'
-							+generateQuery(json.data[i].tasks[0])+'</td><td><div class="progress progress-striped active"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+							+generateQuery(json.data[i].tasks[0])+'</td><td><div class="progress progress-striped active"><div class="progress-bar '
+							+progressStyle(json.data[i].tasks[0].state)+'" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
 							+progress+'%;"><span class="sr-only">'
 							+progress+'%</span></div></div></td></tr>';
 				for(var j=1;j<json.data[i].tasks.length;j++){
@@ -141,11 +155,12 @@ function appendClients(json){
 								+json.data[i].tasks[j].total+'</td><td class="task-success">'
 								+json.data[i].tasks[j].success+'</td><td class="task-failed">'
 								+json.data[i].tasks[j].failed+'</td><td>'
-								+generateQuery(json.data[i].tasks[j])+'</td><td><div class="progress progress-striped active"><div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
+								+generateQuery(json.data[i].tasks[j])+'</td><td><div class="progress progress-striped active"><div class="progress-bar'
+								+progressStyle(json.data[i].tasks[j].state)+'" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
 								+progress+'%;"><span class="sr-only">'
 								+progress+'%</span></div></div></td></tr>';
 				}
-				$("#client-"+json.data[i].clientID).html(content);				
+				$("#client-"+json.data[i].clientID).html(content);			
 			}
 		}				
 	}else
@@ -159,6 +174,17 @@ function appendClients(json){
 	 * var json_2 = JSON.parse(jsonStr_2);
 	 * appendClients(json_2);
 	 */
+}
+
+function progressStyle(state){
+	if(state == "error")
+		return "progress-bar-danger";//haven't updated for 20 mins or error
+	else if(state == "open")
+		return "progress-bar-success";//on-going task
+	else if(state == "closed")
+		return "progress-bar-info";//finished task
+	else
+		return "progress-bar-warning";//assigned
 }
 
 /****** ajax handling *****/
@@ -214,6 +240,7 @@ function postTask (){
 		dataType: 'json',
 		success: function (json){
 			$("#resp").html(syntaxHighlight(json));
+			getClients();
 		}
 	});
 }
