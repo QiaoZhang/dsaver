@@ -24,7 +24,7 @@ public class DataSaver extends HttpServlet {
     }
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		JsonObject respStr = new JsonObject();
+		JsonObject respStr = new JsonObject();			
 		//convert posted data into MajorRepository data class
 		Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
@@ -32,7 +32,11 @@ public class DataSaver extends HttpServlet {
 		//insert MajorRepository data into database
 		response.setContentType("application/json");
 		if(majorRepo.getProjectID() != 0){
-			MajorRepoProcessor processor = new MajorRepoProcessor(majorRepo);
+			MajorRepoProcessor processor;
+			if(request.getHeader("Failed")!=null&&Integer.valueOf(request.getHeader("Failed"))>0)
+				processor = new MajorRepoProcessor(majorRepo,Integer.valueOf(request.getHeader("Failed")));
+			else
+				processor = new MajorRepoProcessor(majorRepo);
 			JsonObject resp = processor.process();
 			//response with json data			
 			if(resp.get("success").getAsBoolean())

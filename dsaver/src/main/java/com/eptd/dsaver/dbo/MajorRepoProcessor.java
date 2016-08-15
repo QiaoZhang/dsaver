@@ -9,9 +9,16 @@ import com.google.gson.JsonObject;
 public class MajorRepoProcessor {
 	private final MajorRepository repo;
 	private DBOperation dbo;
+	private int failed;
 	
 	public MajorRepoProcessor(MajorRepository repo){
 		this.repo = repo;
+		this.failed = 0;
+	}
+	
+	public MajorRepoProcessor(MajorRepository repo,int failed){
+		this.repo = repo;
+		this.failed = failed;
 	}
 	
 	public JsonObject process(){
@@ -36,6 +43,10 @@ public class MajorRepoProcessor {
 					errors.add(response);
 				}
 			}
+			//update task and client
+			dbo.updateTask(repo.getTaskID());//success + 1
+			dbo.updateTask(repo.getTaskID(), failed);//update failed
+			dbo.updateClient(repo);
 		} catch (Exception e) {
 			resp.remove("success");
 			resp.addProperty("success", false);

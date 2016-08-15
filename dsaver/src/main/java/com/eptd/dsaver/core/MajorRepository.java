@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MajorRepository extends Repository{
+	private int TaskID = 0;
 	private ArrayList<User> contributors = new ArrayList<User>();
 	
 	public MajorRepository(){
@@ -23,5 +24,13 @@ public class MajorRepository extends Repository{
 	
 	public void addAllContributors(List<User> contributors){
 		this.contributors.addAll(contributors);
+	}
+
+	public int getTaskID() {
+		return TaskID;
+	}
+
+	public void setTaskID(int taskID) {
+		TaskID = taskID;
 	}
 }

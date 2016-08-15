@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import com.eptd.dsaver.core.Client;
@@ -139,11 +140,12 @@ public class DBOperation {
 	}
 	
 	public int insert(MajorRepository repo) throws SQLException{
-		String sql = "INSERT IGNORE INTO major_repo (id,repo_id,contributors) VALUES (?,?,?)";
+		String sql = "INSERT IGNORE INTO major_repo (id,repo_id,task_id,contributors) VALUES (?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);//id
 		ps.setLong(2, repo.getProjectID());//repo_id
-		ps.setInt(3, repo.getContributors().size());//contributors
+		ps.setInt(3, repo.getTaskID());//task_id
+		ps.setInt(4, repo.getContributors().size());//contributors
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
 			ps.close();//close statement to release resource
@@ -196,51 +198,7 @@ public class DBOperation {
 			throw new SQLException("Creating user failed, no rows affected during insert operation of major repo "+repo.getProjectID());
 		}
 	}
-	
-	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws SQLException{
-		if(!isMajorRepo)
-			return connect(user_id,repo_id);
-		final String sql = "INSERT INTO repo_users (id,repo_id,user_id) VALUES (?,?,?)";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setNull(1, Types.INTEGER);//id
-		ps.setLong(2, repo_id);//repo_id
-		ps.setLong(3, user_id);//user_id
-		if (ps.executeUpdate() == 0){
-			ps.close();//close statement to release resource
-			throw new SQLException("Creating connection between major repo "+repo_id+" and user "+user_id+" failed, no rows affected.");
-		}else {
-			ResultSet rs = ps.getGeneratedKeys();
-			ps.close();//close statement to release resource
-			if(rs.next()){
-				int val = rs.getInt(1);
-				rs.close();
-				return val;
-			}
-			return 0;
-		}
-	}
-	
-	public int connect(long user_id,long repo_id) throws SQLException{
-		final String sql = "INSERT INTO user_repos (id,user_id,repo_id) VALUES (?,?,?)";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setNull(1, Types.INTEGER);//id
-		ps.setLong(2, user_id);//repo_id
-		ps.setLong(3, repo_id);//user_id
-		if (ps.executeUpdate() == 0){
-			ps.close();//close statement to release resource
-			throw new SQLException("Creating connection between user "+user_id+" and repo "+repo_id+" failed, no rows affected.");
-		}else {
-			ResultSet rs = ps.getGeneratedKeys();
-			ps.close();//close statement to release resource
-			if(rs.next()){
-				int val = rs.getInt(1);
-				rs.close();
-				return val;
-			}
-			return 0;
-		}
-	}
-	
+
 	public int insert(Client client) throws SQLException{
 		final String sql = "INSERT INTO clients (client_id,finger_print,username,password,app_id,app_secret,last_update) VALUES (?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
@@ -325,6 +283,50 @@ public class DBOperation {
 		}
 	}
 	
+	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws SQLException{
+		if(!isMajorRepo)
+			return connect(user_id,repo_id);
+		final String sql = "INSERT INTO repo_users (id,repo_id,user_id) VALUES (?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, repo_id);//repo_id
+		ps.setLong(3, user_id);//user_id
+		if (ps.executeUpdate() == 0){
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating connection between major repo "+repo_id+" and user "+user_id+" failed, no rows affected.");
+		}else {
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}
+	}
+	
+	public int connect(long user_id,long repo_id) throws SQLException{
+		final String sql = "INSERT INTO user_repos (id,user_id,repo_id) VALUES (?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, user_id);//repo_id
+		ps.setLong(3, repo_id);//user_id
+		if (ps.executeUpdate() == 0){
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating connection between user "+user_id+" and repo "+repo_id+" failed, no rows affected.");
+		}else {
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}
+	}
+	
 	public ArrayList<Client> getClientInfo() throws SQLException{
 		ArrayList<Client> clients = new ArrayList<Client>();
 		final String clientSQL = "SELECT * FROM clients";
@@ -346,14 +348,82 @@ public class DBOperation {
 		return null;
 	}
 	
-	public int updateTask(int taskID, boolean success) throws SQLException{
-		final String sql;
-		if(success)
-			sql = "UPDATE tasks SET success = success + 1 WHERE task_id = ?";
-		else
-			sql = "UPDATE tasks SET failed = failed + 1 WHERE task_id = ?";
+	public int updateClient(int clientID) {
+		try {
+			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = ?";
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setTimestamp(1, new Timestamp(new DateTime().getMillis()));
+			ps.setInt(1, clientID);//task_id
+			if (ps.executeUpdate() >= 0){
+				ResultSet rs = ps.getGeneratedKeys();
+				ps.close();//close statement to release resource
+				if(rs.next()){
+					int val = rs.getInt(1);
+					rs.close();
+					return val;
+				}
+				return 0;
+			}else{
+				ps.close();//close statement to release resource
+				throw new SQLException("Updating client failed, no rows affected during update operation of client "+clientID);
+			}
+		} catch (Exception e){
+			return 0;
+		}		
+	}
+	
+	public int updateClient(MajorRepository repo) {
+		try {
+			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = (SELECT client_id FROM tasks WHERE taks_id = ?)";
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setTimestamp(1, new Timestamp(new DateTime().getMillis()));
+			ps.setInt(1, repo.getTaskID());//task_id
+			if (ps.executeUpdate() >= 0){
+				ResultSet rs = ps.getGeneratedKeys();
+				ps.close();//close statement to release resource
+				if(rs.next()){
+					int val = rs.getInt(1);
+					rs.close();
+					return val;
+				}
+				return 0;
+			}else{
+				ps.close();//close statement to release resource
+				throw new SQLException("Updating client failed, no rows affected during update operation of client who has task "+repo.getTaskID());
+			}
+		} catch (Exception e){
+			return 0;
+		}	
+	}
+	
+	public int updateTask(int taskID){
+		try {
+			final String sql = "UPDATE tasks SET success = success + 1 WHERE task_id = ?";
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setInt(1, taskID);//task_id
+			if (ps.executeUpdate() >= 0){
+				ResultSet rs = ps.getGeneratedKeys();
+				ps.close();//close statement to release resource
+				if(rs.next()){
+					int val = rs.getInt(1);
+					rs.close();
+					return val;
+				}
+				return 0;
+			}else{
+				ps.close();//close statement to release resource
+				throw new SQLException("Updating task failed, no rows affected during update operation of task "+taskID);
+			}
+		} catch (Exception e){
+			return 0;
+		}		
+	}
+	
+	public int updateTask(int taskID, int failed) throws SQLException{
+		final String sql = "UPDATE tasks SET failed = ? WHERE task_id = ?";
 		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setInt(1, taskID);//task_id
+		ps.setInt(1, failed);//failed
+		ps.setInt(2, taskID);//task_id
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
 			ps.close();//close statement to release resource

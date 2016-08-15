@@ -14,8 +14,7 @@ public class Repository {
 	protected String userType = null;
 	protected String language = null;
 	protected String version = null;
-	
-	//TODO Instead of using major language, use language set to make comparison
+
 	//protected Languages languages;
 	
 	protected long size = 0;

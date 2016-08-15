@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.eptd.dsaver.core.Task;
-import com.eptd.dsaver.dbo.TaskPostingProcessor;
+import com.eptd.dsaver.core.Client;
+import com.eptd.dsaver.dbo.TaskDistributingProcessor;
 import com.fatboyindustrial.gsonjodatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,23 +28,26 @@ public class TaskDistributor extends HttpServlet {
 		//convert posted data into Task data class
 		Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
-		Task task = gson.fromJson(reader, Task.class);
+		Client client = gson.fromJson(reader, Client.class);
 		//insert Task data into database
 		response.setContentType("application/json");
-		if(task.getClientID() != 0){
-			TaskPostingProcessor processor = new TaskPostingProcessor(task);
+		if(client.getFingerPrint() != null){
+			TaskDistributingProcessor processor = new TaskDistributingProcessor(client);
 			JsonObject resp = processor.process();
 			//response with json data			
 			if(resp.get("success").getAsBoolean()){
 				respStr.addProperty("success", true);
-				respStr.addProperty("generated_id", resp.get("generated_id").getAsInt());
+				if(resp.get("task")!=null)
+					respStr.add("data", resp.get("task").getAsJsonObject());
+				if(resp.get("generated_id")!=null)
+					respStr.addProperty("generated_id", resp.get("generated_id").getAsInt());
 			}else{
 				respStr.addProperty("success", false);
 				respStr.add("error_msg", resp.get("error_messages").getAsJsonArray());
 			}
 		}else{
 			respStr.addProperty("success", false);
-			respStr.addProperty("error_msg", "Invalid repo data attached in request entity.");
+			respStr.addProperty("error_msg", "Invalid client info attached in request entity.");
 		}
 		response.getWriter().append(respStr.toString());
 	}
