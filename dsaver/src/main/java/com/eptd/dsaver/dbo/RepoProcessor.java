@@ -24,8 +24,12 @@ public class RepoProcessor {
 			int id = dbo.insert(repo);
 			if(id > 0)
 				resp.addProperty("generated_id", id);
-			else if(id == 0)
-				throw new SQLException("Tuple of repo "+repo.getProjectID()+" already exists");
+			else if(id == 0) {
+				JsonObject error = new JsonObject();
+				error.addProperty("id", repo.getProjectID());
+				error.addProperty("messages", "Tuple of repo "+repo.getProjectID()+" already exists");
+				errors.add(error);
+			}
 			//connect user with major repo
 			int connID = dbo.connect(user_id, repo.getProjectID());
 			if(connID > 0)

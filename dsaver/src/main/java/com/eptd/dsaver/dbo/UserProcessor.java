@@ -24,8 +24,13 @@ public class UserProcessor {
 			int id = dbo.insert(user);
 			if(id > 0)
 				resp.addProperty("generated_id", id);
-			else if(id == 0)
-				throw new SQLException("Tuple of user "+user.getUserId()+" already exists");
+			else if(id == 0){
+				//error object for major repo
+				JsonObject error = new JsonObject();
+				error.addProperty("id", user.getUserId());
+				error.addProperty("message", "Tuple of user "+user.getUserId()+" already exists");
+				errors.add(error);
+			}
 			//process all repos
 			for(int i=0;i<user.getOwnRepos().size();i++){
 				RepoProcessor processor = new RepoProcessor(user.getOwnRepos().get(i),dbo);
