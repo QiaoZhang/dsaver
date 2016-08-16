@@ -456,7 +456,7 @@ public class DBOperation {
 			client.addTask(new Task()
 				.setTaskID(taskRS.getInt("task_id"))
 				.setClientID(taskRS.getInt("client_id"))
-				.setState(taskRS.getString("state"))
+				.setState(isStateError(taskRS.getString("state"),client.getLastUpdate()))
 				.setTotal(taskRS.getInt("total"))
 				.setSuccess(taskRS.getInt("success"))
 				.setFailed(taskRS.getInt("failed"))
@@ -468,6 +468,12 @@ public class DBOperation {
 				.setCreated(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSSSSS").parseDateTime(taskRS.getString("created"))));	
 		}
 		return client;
+	}
+	
+	private String isStateError(String state,DateTime lastUpdate){//TODO
+		//calculate date difference between lastUpdate and new DateTime()
+		//if state is open, return error
+		return state;
 	}
 	
 	protected void finalize() throws SQLException{

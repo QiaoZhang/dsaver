@@ -32,7 +32,11 @@ public class TaskDistributor extends HttpServlet {
 		//insert Task data into database
 		response.setContentType("application/json");
 		if(client.getFingerPrint() != null){
-			TaskDistributingProcessor processor = new TaskDistributingProcessor(client);
+			TaskDistributingProcessor processor;
+			if(request.getHeader("Failed")!=null&&Integer.valueOf(request.getHeader("Failed"))>0)
+				processor = new TaskDistributingProcessor(client,Integer.valueOf(request.getHeader("Failed")));
+			else
+				processor = new TaskDistributingProcessor(client);
 			JsonObject resp = processor.process();
 			//response with json data			
 			if(resp.get("success").getAsBoolean()){

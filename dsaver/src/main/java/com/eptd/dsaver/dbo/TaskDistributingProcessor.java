@@ -16,9 +16,16 @@ import com.google.gson.JsonParser;
 public class TaskDistributingProcessor {
 	private DBOperation dbo;
 	private Client client;
+	private int failed;
 	
 	public TaskDistributingProcessor(Client client){
 		this.client = client;
+		this.failed = 0;
+	}
+	
+	public TaskDistributingProcessor(Client client, int failed){
+		this.client = client;
+		this.failed = failed;
 	}
 	
 	public JsonObject process(){
@@ -28,6 +35,10 @@ public class TaskDistributingProcessor {
 		resp.addProperty("success", true);
 		try {
 			dbo = new DBOperation();
+			//TODO if a failed has been passed, close the opening task and make the next assigned task open
+			if(failed != 0){
+				
+			}
 			Client clientTasks = dbo.getClientInfo(client.getFingerPrint());
 			if(clientTasks != null){
 				//if specific client exists
@@ -35,11 +46,17 @@ public class TaskDistributingProcessor {
 				if(clientTasks.getTasks().size() > 0){
 					Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
 					resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(0), Task.class)));
+					boolean nonOpenTask = true;
 					for(int i=1;i<clientTasks.getTasks().size();i++){
 						if(clientTasks.getTasks().get(i).getState().equals("open")){
+							nonOpenTask = false;
 							resp.remove("task");
 							resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(i), Task.class)));
 						}
+					}
+					//if there is no open state task
+					if(nonOpenTask){
+						//TODO make the clientTasks.getTasks().get(0) as open state
 					}
 				} else
 					throw new SQLException("No task assigned to client "+client.getFingerPrint()+" exists in database.");
