@@ -117,15 +117,6 @@ function appendClients(json){
 						$("#client-"+json.data[i].clientID).append(content);
 					}else{
 						//existing tasks
-						/*
-						if(json.data[i].tasks[j].state == "error")
-							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-danger")//haven't updated for 20 mins or error
-						else if(json.data[i].tasks[j].state == "open")
-							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-success");//on-going task
-						else if(json.data[i].tasks[j].state == "closed")
-							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-info");//finished task
-						else
-							$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("class","progress-bar progress-bar-warning");//assigned*/
 						$("#client-"+json.data[i].clientID+">tr").find("td.task-success").slice(j,j+1).text(json.data[i].tasks[j].success);
 						$("#client-"+json.data[i].clientID+">tr").find("td.task-failed").slice(j,j+1).text(json.data[i].tasks[j].failed);
 						$("#client-"+json.data[i].clientID+">tr").find("div.progress-bar").slice(j,j+1).attr("style","width: "+progress+"%;");
@@ -165,15 +156,6 @@ function appendClients(json){
 		}				
 	}else
 		$("#resp").html(syntaxHighlight(json));
-	/*** client info appending and updating testing data ***
-	 * var jsonStr_1 = '{"success":true,"data":[{"clientID":1,"fingerPrint":"test-1","lastUpdate":"2016-07-26T18:00:51.157-05:00","tasks":[{"taskID":0,"clientID":1,"total":20,"success":0,"failed":0,"paraLanguage":"java","paraSize":"4000..40000","created":"2016-07-26T18:00:51.098-05:00"},{"taskID":0,"clientID":1,"total":10,"success":0,"failed":0,"paraLanguage":"java","paraForks":"200..2000","created":"2016-07-26T18:00:51.156-05:00"}]},{"clientID":2,"fingerPrint":"test-2","lastUpdate":"2016-07-26T18:03:06.773-05:00","tasks":[{"taskID":0,"clientID":2,"total":40,"success":0,"failed":0,"paraLanguage":"java","paraSize":"2000..20000","created":"2016-07-26T18:03:06.773-05:00"},{"taskID":0,"clientID":2,"total":20,"success":0,"failed":0,"paraLanguage":"java","paraForks":"400..4000","created":"2016-07-26T18:03:06.773-05:00"}]}]}';
-	 * var json_1 = JSON.parse(jsonStr_1);
-	 * appendClients(json_1);
-	 *
-	 * var jsonStr_2 = '{"success":true,"data":[{"clientID":1,"fingerPrint":"test-1","lastUpdate":"2016-07-26T18:00:51.157-05:00","tasks":[{"taskID":0,"clientID":1,"total":20,"success":5,"failed":5,"state":"error","paraLanguage":"java","paraSize":"4000..40000","created":"2016-07-26T18:00:51.098-05:00"},{"taskID":0,"clientID":1,"total":10,"success":5,"failed":0,"state":"closed","paraLanguage":"java","paraForks":"200..2000","created":"2016-07-26T18:00:51.156-05:00"},{"taskID":0,"clientID":1,"total":10,"success":5,"failed":0,"state":"error","paraLanguage":"java","paraForks":"200..2000","created":"2016-07-26T18:00:51.156-05:00"},{"taskID":0,"clientID":1,"total":20,"success":5,"failed":5,"state":"assigned","paraLanguage":"java","paraSize":"4000..40000","created":"2016-07-26T18:00:51.098-05:00"}]},{"clientID":2,"fingerPrint":"test-2","lastUpdate":"2016-07-26T18:03:06.773-05:00","tasks":[{"taskID":0,"clientID":2,"total":40,"success":10,"failed":5,"paraLanguage":"java","paraSize":"2000..20000","created":"2016-07-26T18:03:06.773-05:00"},{"taskID":0,"clientID":2,"total":20,"success":0,"failed":0,"paraLanguage":"java","paraForks":"400..4000","created":"2016-07-26T18:03:06.773-05:00"}]}]}';
-	 * var json_2 = JSON.parse(jsonStr_2);
-	 * appendClients(json_2);
-	 */
 }
 
 function progressStyle(state){

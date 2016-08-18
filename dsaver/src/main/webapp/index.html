@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>EPTD Monitor</title>
-	<script type="text/javascript" src="js/jquery-3.1.0.min.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
-	<script type="text/javascript" src="js/script.js"></script>
-	<!-- css -->
-	<link href="css/bootstrap.min.css" rel="stylesheet" />
-	<link href="css/style.css" rel="stylesheet">
+<title>EPTD Monitor</title>
+<script type="text/javascript" src="js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
+<!-- css -->
+<link href="css/bootstrap.min.css" rel="stylesheet" />
+<link href="css/style.css" rel="stylesheet">
 </head>
 <body>
 	<div class="container">
 		<div class="row">
 			<div class="col-lg-12">
 				<h1 class="text-center">EPTD DMiner &amp; DSaver Status Monitor</h1>
-			</div>	
+			</div>
 		</div>
 		<div class="wrapper">
 			<div class="row">
@@ -27,22 +27,24 @@
 			</div>
 			<div class="row">
 				<div class="table-responsive">
-				<!-- client table -->
-				<table class="table table-hover">
-					<!-- thead -->
-					<thead><tr>
-						<th class="col-lg-1">ID</th>
-						<th class="col-lg-1">Clients</th>
-						<th class="col-lg-1">Total</th>
-						<th class="col-lg-1">Success</th>
-						<th class="col-lg-1">Failure</th>						
-						<th class="col-lg-5">Query</th>
-						<th class="col-lg-2">Progress</th>
-					</tr></thead>
-				</table>
-				</div> 
+					<!-- client table -->
+					<table class="table table-hover">
+						<!-- thead -->
+						<thead>
+							<tr>
+								<th class="col-lg-1">ID</th>
+								<th class="col-lg-1">Clients</th>
+								<th class="col-lg-1">Total</th>
+								<th class="col-lg-1">Success</th>
+								<th class="col-lg-1">Failure</th>
+								<th class="col-lg-5">Query</th>
+								<th class="col-lg-2">Progress</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
 			</div>
-		</div>		
+		</div>
 		<div class="solidline"></div>
 		<div class="wrapper">
 			<div class="row">
@@ -50,40 +52,42 @@
 					<h4>New Task:</h4>
 				</div>
 				<div class="col-lg-9">
-					<h4><a id="taskquery" href="#"></a></h4>
+					<h4>
+						<a id="taskquery" href="#"></a>
+					</h4>
 				</div>
 				<div class="col-lg-1">
 					<button id="post" type="button" class="btn btn-default btn-block">Post</button>
 				</div>
-			</div>		
+			</div>
 			<div id="task" class="row">
 				<div class="col-lg-1">
-					<label for="client_id">Client ID:</label>
-					<input id="client_id" class="form-control" type="text"/>
+					<label for="client_id">Client ID:</label> <input id="client_id"
+						class="form-control" type="text" />
 				</div>
 				<div class="col-lg-1">
-					<label for="total">Total:</label>
-					<input id="total" class="form-control" type="text"/>
+					<label for="total">Total:</label> <input id="total"
+						class="form-control" type="text" />
 				</div>
 				<div class="col-lg-2">
-					<label for="language">Language:</label>
-					<input id="language" class="form-control" type="text"/>
+					<label for="language">Language:</label> <input id="language"
+						class="form-control" type="text" />
 				</div>
 				<div class="col-lg-2">
-					<label for="size">Size:</label>
-					<input id="size" class="form-control" type="text"/>
+					<label for="size">Size:</label> <input id="size"
+						class="form-control" type="text" />
 				</div>
 				<div class="col-lg-2">
-					<label for="forks">Forks:</label>
-					<input id="forks" class="form-control" type="text"/>
+					<label for="forks">Forks:</label> <input id="forks"
+						class="form-control" type="text" />
 				</div>
 				<div class="col-lg-2">
-					<label for="stars">Stars:</label>
-					<input id="stars" class="form-control" type="text"/>
+					<label for="stars">Stars:</label> <input id="stars"
+						class="form-control" type="text" />
 				</div>
 				<div class="col-lg-2">
-					<label for="user">User:</label>
-					<input id="user" class="form-control" type="text"/>
+					<label for="user">User:</label> <input id="user"
+						class="form-control" type="text" />
 				</div>
 			</div>
 		</div>
@@ -91,11 +95,12 @@
 		<div class="wrapper">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-				<h3 class="panel-title">Responsed JSON Data</h3>
+					<h3 class="panel-title">Responsed JSON Data</h3>
+				</div>
+				<div class="panel-body">
+					<pre id="resp"></pre>
+				</div>
 			</div>
-			<div class="panel-body">
-				<pre id="resp"></pre>
-			</div>				
 		</div>
 	</div>
 </body>

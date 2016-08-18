@@ -28,6 +28,12 @@
   	<description></description>
   	<servlet-class>com.eptd.dsaver.servlet.ClientInfo</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>HeaderTester</servlet-name>
+  	<display-name>HeaderTester</display-name>
+  	<description></description>
+  	<servlet-class>com.eptd.dsaver.servlet.HeaderTester</servlet-class>
+  </servlet>
   <servlet-mapping>
   	<servlet-name>DataSaver</servlet-name>
   	<url-pattern>/DataSaver</url-pattern>
@@ -43,5 +49,9 @@
   <servlet-mapping>
   	<servlet-name>ClientInfo</servlet-name>
   	<url-pattern>/ClientInfo</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>HeaderTester</servlet-name>
+  	<url-pattern>/HeaderTester</url-pattern>
   </servlet-mapping>
 </web-app>

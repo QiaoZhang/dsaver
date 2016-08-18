@@ -33,8 +33,8 @@ public class DataSaver extends HttpServlet {
 		response.setContentType("application/json");
 		if(majorRepo.getProjectID() != 0){
 			MajorRepoProcessor processor;
-			if(request.getHeader("Failed")!=null&&Integer.valueOf(request.getHeader("Failed"))>0)
-				processor = new MajorRepoProcessor(majorRepo,Integer.valueOf(request.getHeader("Failed")));
+			if(request.getHeader("Failed-repo")!=null&&Integer.valueOf(request.getHeader("Failed-repo"))>0)
+				processor = new MajorRepoProcessor(majorRepo,Integer.valueOf(request.getHeader("Failed-repo")));
 			else
 				processor = new MajorRepoProcessor(majorRepo);
 			JsonObject resp = processor.process();

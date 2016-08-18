@@ -31,10 +31,11 @@ public class TaskDistributor extends HttpServlet {
 		Client client = gson.fromJson(reader, Client.class);
 		//insert Task data into database
 		response.setContentType("application/json");
+		respStr.addProperty("Header", request.getHeader("Failed-repo"));
 		if(client.getFingerPrint() != null){
 			TaskDistributingProcessor processor;
-			if(request.getHeader("Failed")!=null&&Integer.valueOf(request.getHeader("Failed"))>0)
-				processor = new TaskDistributingProcessor(client,Integer.valueOf(request.getHeader("Failed")));
+			if(request.getHeader("Failed-repo")!=null&&Integer.valueOf(request.getHeader("Failed-repo"))>0)
+				processor = new TaskDistributingProcessor(client,Integer.valueOf(request.getHeader("Failed-repo")));
 			else
 				processor = new TaskDistributingProcessor(client);
 			JsonObject resp = processor.process();

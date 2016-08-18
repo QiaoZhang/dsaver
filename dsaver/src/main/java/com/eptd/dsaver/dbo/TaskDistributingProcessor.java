@@ -35,29 +35,36 @@ public class TaskDistributingProcessor {
 		resp.addProperty("success", true);
 		try {
 			dbo = new DBOperation();
-			//TODO if a failed has been passed, close the opening task and make the next assigned task open
-			if(failed != 0){
-				
-			}
+			//if a failed has been passed, close the opening task and make the next assigned task open
+			if(failed != 0)
+				dbo.updateTask(client, "closed");
 			Client clientTasks = dbo.getClientInfo(client.getFingerPrint());
 			if(clientTasks != null){
 				//if specific client exists
 				dbo.updateClient(clientTasks.getClientID());
 				if(clientTasks.getTasks().size() > 0){
 					Gson gson = Converters.registerDateTime(new GsonBuilder()).create();
-					resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(0), Task.class)));
-					boolean nonOpenTask = true;
-					for(int i=1;i<clientTasks.getTasks().size();i++){
-						if(clientTasks.getTasks().get(i).getState().equals("open")){
-							nonOpenTask = false;
-							resp.remove("task");
+					int newTaskIndex = 0;
+					for(int i=0;i<clientTasks.getTasks().size();i++){
+						if(clientTasks.getTasks().get(i).getState().equals("closed"))
+							continue;
+						if(clientTasks.getTasks().get(i).getState().equals("assigned")&&!resp.has("task")){
+							newTaskIndex = i;
 							resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(i), Task.class)));
+						}
+						if(clientTasks.getTasks().get(i).getState().equals("open")||
+								clientTasks.getTasks().get(i).getState().equals("error")){
+							newTaskIndex = 0;
+							if(resp.has("task"))
+								resp.remove("task");
+							resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(i), Task.class)));
+							break;
 						}
 					}
 					//if there is no open state task
-					if(nonOpenTask){
-						//TODO make the clientTasks.getTasks().get(0) as open state
-					}
+					if(newTaskIndex>0)
+						//make the clientTasks.getTasks().get(0) as open state
+						dbo.updateTask(clientTasks.getTasks().get(newTaskIndex).getTaskID(), "open");
 				} else
 					throw new SQLException("No task assigned to client "+client.getFingerPrint()+" exists in database.");
 			}else{

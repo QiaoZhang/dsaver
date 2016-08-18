@@ -353,7 +353,7 @@ public class DBOperation {
 			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setTimestamp(1, new Timestamp(new DateTime().getMillis()));
-			ps.setInt(1, clientID);//task_id
+			ps.setInt(2, clientID);//task_id
 			if (ps.executeUpdate() >= 0){
 				ResultSet rs = ps.getGeneratedKeys();
 				ps.close();//close statement to release resource
@@ -377,7 +377,7 @@ public class DBOperation {
 			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = (SELECT client_id FROM tasks WHERE taks_id = ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setTimestamp(1, new Timestamp(new DateTime().getMillis()));
-			ps.setInt(1, repo.getTaskID());//task_id
+			ps.setInt(2, repo.getTaskID());//task_id
 			if (ps.executeUpdate() >= 0){
 				ResultSet rs = ps.getGeneratedKeys();
 				ps.close();//close statement to release resource
@@ -439,6 +439,46 @@ public class DBOperation {
 		}
 	}
 	
+	public int updateTask(int taskID, String state) throws SQLException{
+		final String sql = "UPDATE tasks SET state = ? WHERE task_id = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setString(1, state);//failed
+		ps.setInt(2, taskID);//task_id
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Updating task failed, no rows affected during update operation of task "+taskID);
+		}
+	}
+	
+	public int updateTask(Client client, String state) throws SQLException{
+		final String sql = "UPDATE tasks SET state = ? WHERE state = 'open' AND client_id = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setString(1, state);//failed
+		ps.setInt(2, client.getClientID());//task_id
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Updating task failed, no rows affected during update operation of the 'open' state task of client "+client.getFingerPrint());
+		}
+	}
+	
 	private Client extractClientInfo(ResultSet clientRS) throws SQLException{
 		Client client = new Client()
 			.setClientID(clientRS.getInt("client_id"))
@@ -470,9 +510,12 @@ public class DBOperation {
 		return client;
 	}
 	
-	private String isStateError(String state,DateTime lastUpdate){//TODO
+	private String isStateError(String state,DateTime lastUpdate){
 		//calculate date difference between lastUpdate and new DateTime()
+		long difference = ((new DateTime().getMillis() - lastUpdate.getMillis())/1000)/60;//unit in minutes
 		//if state is open, return error
+		if(difference > 30 && state.equals("open"))
+			return "error";
 		return state;
 	}
 	
