@@ -459,11 +459,12 @@ public class DBOperation {
 		}
 	}
 	
-	public int updateTask(Client client, String state) throws SQLException{
-		final String sql = "UPDATE tasks SET state = ? WHERE state = 'open' AND client_id = ?";
+	public int updateTask(Client client, String state, int failed) throws SQLException{
+		final String sql = "UPDATE tasks SET state = ?,failed=? WHERE state = 'open' AND client_id = (SELECT client_id FROM clients WHERE finger_print = ?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setString(1, state);//failed
-		ps.setInt(2, client.getClientID());//task_id
+		ps.setInt(2, failed);
+		ps.setString(3, client.getFingerPrint());//task_id
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
 			ps.close();//close statement to release resource

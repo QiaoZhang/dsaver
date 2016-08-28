@@ -3,6 +3,8 @@ import java.util.ArrayList;
 
 import org.joda.time.DateTime;
 
+import com.eptd.dsaver.core.SonarMetrics;
+
 public class Repository {
 	//basic repository information
 	protected String repositoryURL = null;
@@ -112,6 +114,14 @@ public class Repository {
 	public void setSonarMetrics(ArrayList<SonarMetrics> sonarMetrics) {
 		if(sonarMetrics!=null)
 			this.sonarMetrics = sonarMetrics;
+	}
+	
+	public SonarMetrics getSonarMetrics(String key){
+		for(int i=0;i<sonarMetrics.size();i++){
+			if(sonarMetrics.get(i).getKey().equals(key))
+				return sonarMetrics.get(i);
+		}
+		return null;
 	}
 
 	public long getSize() {
