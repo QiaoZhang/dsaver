@@ -34,8 +34,7 @@ CREATE TABLE clients
 CREATE TABLE major_repo
 (
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
-	-- github id
-	repo_id int unsigned DEFAULT 0 NOT NULL COMMENT 'github id',
+	repo_id int unsigned DEFAULT 0 NOT NULL,
 	-- task id
 	task_id int unsigned zerofill COMMENT 'task id',
 	-- number of contributors
@@ -47,44 +46,49 @@ CREATE TABLE major_repo
 
 CREATE TABLE repo
 (
-	-- record id as primary key
-	id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'record id as primary key',
-	-- github id
-	repo_id int unsigned DEFAULT 0 COMMENT 'github id',
-	-- github api url
-	repo_url varchar(500) DEFAULT 'Unkown' COMMENT 'github api url',
-	-- github html url
-	repo_html varchar(500) DEFAULT 'Unknown' COMMENT 'github html url',
-	-- github name
-	repo_name varchar(500) DEFAULT 'Unknown' COMMENT 'github name',
-	-- github owner login 
-	owner_login varchar(100) DEFAULT 'Unknown' COMMENT 'github owner login ',
-	-- github owner type: user/orgs
-	owner_type char(20) DEFAULT 'User' COMMENT 'github owner type: user/orgs',
-	-- major programming language
-	major_language varchar(50) DEFAULT 'Unknown' COMMENT 'major programming language',
-	-- current version/tag
-	version varchar(200) DEFAULT '1.0.0' COMMENT 'current version/tag',
-	-- repo's size in bytes
-	size int unsigned DEFAULT 0 COMMENT 'repo''s size in bytes',
-	-- #of stars
-	stargazers int unsigned DEFAULT 0 COMMENT '#of stars',
-	-- # of forks
-	forks int unsigned DEFAULT 0 COMMENT '# of forks',
-	-- # of issues
-	issues int unsigned DEFAULT 0 COMMENT '# of issues',
-	-- # of handled issues
-	handled_issues int unsigned DEFAULT 0 COMMENT '# of handled issues',
-	-- avg days til first qualified issue event
-	avg_days double unsigned DEFAULT 0.0 COMMENT 'avg days til first qualified issue event',
-	-- repo creation date
-	created_date timestamp DEFAULT '1970-01-01 00:00:01.000000' COMMENT 'repo creation date',
-	-- loc of repo
-	loc int unsigned COMMENT 'loc of repo',
+	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
+	repo_id int unsigned DEFAULT 0,
+	repo_url varchar(500) DEFAULT 'Unkown',
+	repo_html varchar(500) DEFAULT 'Unknown',
+	repo_name varchar(500) DEFAULT 'Unknown',
+	owner_login varchar(100) DEFAULT 'Unknown',
+	owner_type char(20) DEFAULT 'User',
+	major_language varchar(50) DEFAULT 'Unknown',
+	version varchar(200) DEFAULT '1.0.0',
+	size int unsigned DEFAULT 0,
+	stargazers int unsigned DEFAULT 0,
+	forks int unsigned DEFAULT 0,
+	issues int unsigned DEFAULT 0,
+	handled_issues int unsigned DEFAULT 0,
+	avg_days double unsigned DEFAULT 0.0,
+	created_date timestamp DEFAULT '1970-01-01 00:00:01.000000',
+	bugs int unsigned,
+	vulnerabilities int unsigned,
+	code_smells int unsigned,
 	-- td amount
 	sqale_index int unsigned COMMENT 'td amount',
 	-- index/(loc*30)
 	debt_ratio double unsigned COMMENT 'index/(loc*30)',
+	dp_lines_density double unsigned,
+	dp_blocks int unsigned,
+	dp_lines int unsigned,
+	dp_files int unsigned,
+	loc int unsigned,
+	total_lines int unsigned,
+	statements int unsigned,
+	functions int unsigned,
+	classes int unsigned,
+	files int unsigned,
+	directories int unsigned,
+	complexity int unsigned,
+	file_complexity double unsigned,
+	function_complexity double unsigned,
+	class_complexity double unsigned,
+	comment_density double unsigned,
+	comment_lines int unsigned,
+	public_api int unsigned,
+	documented_api_density double unsigned,
+	undocumented_api int unsigned,
 	PRIMARY KEY (id),
 	UNIQUE (repo_id)
 );
@@ -94,10 +98,8 @@ CREATE TABLE repo_users
 (
 	-- record id
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'record id',
-	-- github id
-	repo_id int unsigned COMMENT 'github id',
-	-- github id
-	user_id int unsigned COMMENT 'github id',
+	repo_id int unsigned,
+	user_id int unsigned,
 	PRIMARY KEY (id)
 );
 
@@ -135,60 +137,58 @@ CREATE TABLE tasks
 CREATE TABLE user
 (
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
-	-- github id
-	user_id int unsigned DEFAULT 0 COMMENT 'github id',
-	-- github api url
-	user_url varchar(500) DEFAULT 'Unknown' COMMENT 'github api url',
-	-- github html url
-	user_html varchar(500) DEFAULT 'Unknown' COMMENT 'github html url',
-	-- github login
-	user_login varchar(200) DEFAULT 'Unknown' COMMENT 'github login',
-	-- github name
-	user_name varchar(500) DEFAULT 'Unknown' COMMENT 'github name',
-	-- # of public repo
-	public_repos int unsigned DEFAULT 0 COMMENT '# of public repo',
-	-- # of follower
-	followers int unsigned DEFAULT 0 COMMENT '# of follower',
-	-- # of being assignee
-	assignees int unsigned DEFAULT 0 COMMENT '# of being assignee',
-	-- # of AR
-	analyzed_repos int unsigned DEFAULT 0 COMMENT '# of AR',
-	-- avg size of AR
-	avg_size double unsigned DEFAULT 0.0 COMMENT 'avg size of AR',
-	-- avg stars of AR
-	avg_stargazers double unsigned DEFAULT 0.0 COMMENT 'avg stars of AR',
-	-- avg watchers of AR
-	avg_subscribers double unsigned DEFAULT 0.0 COMMENT 'avg watchers of AR',
-	-- avg forks of AR
-	avg_forks double unsigned DEFAULT 0.0 COMMENT 'avg forks of AR',
-	-- avg issues of AR
-	avg_issues double unsigned DEFAULT 0.0 COMMENT 'avg issues of AR',
-	-- avg issue handled ratio of AR
-	avg_issue_ratio double unsigned DEFAULT 0.0 COMMENT 'avg issue handled ratio of AR',
-	-- avg issue handled days of AR
-	avg_issue_days double unsigned DEFAULT 0.0 COMMENT 'avg issue handled days of AR',
-	-- avg loc of AR
-	avg_loc double unsigned DEFAULT 0.0 COMMENT 'avg loc of AR',
+	user_id int unsigned DEFAULT 0,
+	user_url varchar(500) DEFAULT 'Unknown',
+	user_html varchar(500) DEFAULT 'Unknown',
+	user_login varchar(200) DEFAULT 'Unknown',
+	user_name varchar(500) DEFAULT 'Unknown',
+	public_repos int unsigned DEFAULT 0,
+	followers int unsigned DEFAULT 0,
+	assignees int unsigned DEFAULT 0,
+	analyzed_repos int unsigned DEFAULT 0,
+	avg_size double unsigned DEFAULT 0.0,
+	avg_stargazers double unsigned DEFAULT 0.0,
+	avg_subscribers double unsigned DEFAULT 0.0,
+	avg_forks double unsigned DEFAULT 0.0,
+	avg_issues double unsigned DEFAULT 0.0,
+	avg_issue_ratio double unsigned DEFAULT 0.0,
+	avg_issue_days double unsigned DEFAULT 0.0,
+	pull_requests int unsigned DEFAULT 0,
+	accepted_pr int unsigned DEFAULT 0,
+	contrib_repos int unsigned DEFAULT 0,
+	avg_commits double unsigned DEFAULT 0.0,
+	avg_addition double unsigned DEFAULT 0.0,
+	avg_deletion double unsigned DEFAULT 0.0,
+	avg_changed_files double unsigned DEFAULT 0.0,
+	avg_days_interval double unsigned DEFAULT 0.0,
+	avg_bugs double unsigned,
+	avg_vulnerabilities double unsigned,
+	avg_code_smells double unsigned,
 	-- avg sqale index of AR
 	avg_sqale_index double unsigned DEFAULT 0.0 COMMENT 'avg sqale index of AR',
 	-- avg td ratio of AR
 	avg_debt_ratio double unsigned DEFAULT 0.0 COMMENT 'avg td ratio of AR',
-	-- # of PR
-	pull_requests int unsigned DEFAULT 0 COMMENT '# of PR',
-	-- accepted PR
-	accepted_pr int unsigned DEFAULT 0 COMMENT 'accepted PR',
-	-- # of repos among accepted PR
-	contrib_repos int unsigned DEFAULT 0 COMMENT '# of repos among accepted PR',
-	-- avg commits among PR
-	avg_commits double unsigned DEFAULT 0.0 COMMENT 'avg commits among PR',
-	-- avg addition among PR
-	avg_addition double unsigned DEFAULT 0.0 COMMENT 'avg addition among PR',
-	-- avg deletion among PR
-	avg_deletion double unsigned DEFAULT 0.0 COMMENT 'avg deletion among PR',
-	-- avg changed files among PR
-	avg_changed_files double unsigned DEFAULT 0.0 COMMENT 'avg changed files among PR',
-	-- avg days interval among PR
-	avg_days_interval double unsigned DEFAULT 0.0 COMMENT 'avg days interval among PR',
+	avg_dp_lines_density double unsigned,
+	avg_dp_blocks double unsigned,
+	avg_dp_lines double unsigned,
+	avg_dp_files double unsigned,
+	-- avg loc of AR
+	avg_loc double unsigned DEFAULT 0.0 COMMENT 'avg loc of AR',
+	avg_lines double unsigned,
+	avg_statements double unsigned,
+	avg_functions double unsigned,
+	avg_classes double unsigned,
+	avg_files double unsigned,
+	avg_directories double unsigned,
+	avg_complexity double unsigned,
+	avg_file_cp double unsigned,
+	avg_function_cp double unsigned,
+	avg_class_cp double unsigned,
+	avg_comment_density double unsigned,
+	avg_comment_lines double unsigned,
+	avg_public_api double unsigned,
+	avg_d_api_density double unsigned,
+	avg_ud_api double unsigned,
 	PRIMARY KEY (id),
 	UNIQUE (user_id)
 );
@@ -197,10 +197,8 @@ CREATE TABLE user
 CREATE TABLE user_repos
 (
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
-	-- github id
-	user_id int unsigned COMMENT 'github id',
-	-- github id
-	repo_id int unsigned COMMENT 'github id',
+	user_id int unsigned,
+	repo_id int unsigned,
 	PRIMARY KEY (id)
 );
 

@@ -23,11 +23,40 @@ public class User {
 	private double avgIssuesCount = 0.0;
 	private double avgHandledIssuesRatio = 0.0;
 	private double avgIssueHandledDays = 0.0;
-	private double avgMajorLanguageLOC = 0.0;
-	private double avgSqaleRating = 0.0;
-	private double avgDebtRatio = 0.0;
-	private double avgSqaleIndex = 0.0;
 	
+	//SonarQube metrics
+	//Reliability
+	private double avgBugs = 0.0;
+	//Vulnerabilities
+	private double avgVulnerabilities = 0.0;
+	//Maintainability
+	private double avgCodeSmells = 0.0;
+	private double avgSqaleIndex = 0.0;
+	private double avgDebtRatio = 0.0;
+	//Duplications
+	private double avgDuplicatedLineDensity = 0.0;
+	private double avgDuplicatedBlocks = 0.0;
+	private double avgDuplicatedLines = 0.0;
+	private double avgDuplicatedFiles = 0.0;
+	//Size
+	private double avgMajorLanguageLOC = 0.0;
+	private double avgLines = 0.0;
+	private double avgStatements = 0.0;
+	private double avgFunctions = 0.0;
+	private double avgClasses = 0.0;
+	private double avgFiles = 0.0;
+	private double avgDirectories = 0.0;
+	//Complexity
+	private double avgComplexity = 0.0;
+	private double avgFileComplexity = 0.0;
+	private double avgFunctionComplexity = 0.0;
+	private double avgClassComplexity = 0.0;
+	//Documentation
+	private double avgCommemtLineDensity = 0.0;
+	private double avgCommentLines = 0.0;
+	private double avgPublicAPI = 0.0;
+	private double avgDocumentedAPIDensity = 0.0;
+	private double avgUndocumentedAPI = 0.0;		
 	
 	//attributes from investigated pull request
 	private int numOfPullRequest = 0;
@@ -203,14 +232,6 @@ public class User {
 		this.avgMajorLanguageLOC = avgMajorLanguageLOC;
 	}
 
-	public double getAvgSqaleRating() {
-		return avgSqaleRating;
-	}
-
-	public void setAvgSqaleRating(double avgSqaleRating) {
-		this.avgSqaleRating = avgSqaleRating;
-	}
-
 	public double getAvgDebtRatio() {
 		return avgDebtRatio;
 	}
@@ -289,5 +310,181 @@ public class User {
 
 	public void setAvgDaysIntervalOfPR(double avgDaysIntervalOfPR) {
 		this.avgDaysIntervalOfPR = avgDaysIntervalOfPR;
+	}
+
+	public double getAvgBugs() {
+		return avgBugs;
+	}
+
+	public void setAvgBugs(double avgBugs) {
+		this.avgBugs = avgBugs;
+	}
+
+	public double getAvgVulnerabilities() {
+		return avgVulnerabilities;
+	}
+
+	public void setAvgVulnerabilities(double avgVulnerabilities) {
+		this.avgVulnerabilities = avgVulnerabilities;
+	}
+
+	public double getAvgCodeSmells() {
+		return avgCodeSmells;
+	}
+
+	public void setAvgCodeSmells(double avgCodeSmells) {
+		this.avgCodeSmells = avgCodeSmells;
+	}
+
+	public double getAvgDuplicatedLineDensity() {
+		return avgDuplicatedLineDensity;
+	}
+
+	public void setAvgDuplicatedLineDensity(double avgDuplicatedLineDensity) {
+		this.avgDuplicatedLineDensity = avgDuplicatedLineDensity;
+	}
+
+	public double getAvgDuplicatedBlocks() {
+		return avgDuplicatedBlocks;
+	}
+
+	public void setAvgDuplicatedBlocks(double avgDuplicatedBlocks) {
+		this.avgDuplicatedBlocks = avgDuplicatedBlocks;
+	}
+
+	public double getAvgDuplicatedLines() {
+		return avgDuplicatedLines;
+	}
+
+	public void setAvgDuplicatedLines(double avgDuplicatedLines) {
+		this.avgDuplicatedLines = avgDuplicatedLines;
+	}
+
+	public double getAvgDuplicatedFiles() {
+		return avgDuplicatedFiles;
+	}
+
+	public void setAvgDuplicatedFiles(double avgDuplicatedFiles) {
+		this.avgDuplicatedFiles = avgDuplicatedFiles;
+	}
+
+	public double getAvgLines() {
+		return avgLines;
+	}
+
+	public void setAvgLines(double avgLines) {
+		this.avgLines = avgLines;
+	}
+
+	public double getAvgStatements() {
+		return avgStatements;
+	}
+
+	public void setAvgStatements(double avgStatements) {
+		this.avgStatements = avgStatements;
+	}
+
+	public double getAvgFunctions() {
+		return avgFunctions;
+	}
+
+	public void setAvgFunctions(double avgFunctions) {
+		this.avgFunctions = avgFunctions;
+	}
+
+	public double getAvgClasses() {
+		return avgClasses;
+	}
+
+	public void setAvgClasses(double avgClasses) {
+		this.avgClasses = avgClasses;
+	}
+
+	public double getAvgFiles() {
+		return avgFiles;
+	}
+
+	public void setAvgFiles(double avgFiles) {
+		this.avgFiles = avgFiles;
+	}
+
+	public double getAvgDirectories() {
+		return avgDirectories;
+	}
+
+	public void setAvgDirectories(double avgDirectories) {
+		this.avgDirectories = avgDirectories;
+	}
+
+	public double getAvgComplexity() {
+		return avgComplexity;
+	}
+
+	public void setAvgComplexity(double avgComplexity) {
+		this.avgComplexity = avgComplexity;
+	}
+
+	public double getAvgFileComplexity() {
+		return avgFileComplexity;
+	}
+
+	public void setAvgFileComplexity(double avgFileComplexity) {
+		this.avgFileComplexity = avgFileComplexity;
+	}
+
+	public double getAvgFunctionComplexity() {
+		return avgFunctionComplexity;
+	}
+
+	public void setAvgFunctionComplexity(double avgFunctionComplexity) {
+		this.avgFunctionComplexity = avgFunctionComplexity;
+	}
+
+	public double getAvgClassComplexity() {
+		return avgClassComplexity;
+	}
+
+	public void setAvgClassComplexity(double avgClassComplexity) {
+		this.avgClassComplexity = avgClassComplexity;
+	}
+
+	public double getAvgCommemtLineDensity() {
+		return avgCommemtLineDensity;
+	}
+
+	public void setAvgCommemtLineDensity(double avgCommemtLineDensity) {
+		this.avgCommemtLineDensity = avgCommemtLineDensity;
+	}
+
+	public double getAvgCommentLines() {
+		return avgCommentLines;
+	}
+
+	public void setAvgCommentLines(double avgCommentLines) {
+		this.avgCommentLines = avgCommentLines;
+	}
+
+	public double getAvgPublicAPI() {
+		return avgPublicAPI;
+	}
+
+	public void setAvgPublicAPI(double avgPublicAPI) {
+		this.avgPublicAPI = avgPublicAPI;
+	}
+
+	public double getAvgDocumentedAPIDensity() {
+		return avgDocumentedAPIDensity;
+	}
+
+	public void setAvgDocumentedAPIDensity(double avgDocumentedAPIDensity) {
+		this.avgDocumentedAPIDensity = avgDocumentedAPIDensity;
+	}
+
+	public double getAvgUndocumentedAPI() {
+		return avgUndocumentedAPI;
+	}
+
+	public void setAvgUndocumentedAPI(double avgUndocumentedAPI) {
+		this.avgUndocumentedAPI = avgUndocumentedAPI;
 	}
 }

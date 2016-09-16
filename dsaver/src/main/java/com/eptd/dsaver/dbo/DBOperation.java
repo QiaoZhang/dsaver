@@ -70,6 +70,7 @@ public class DBOperation {
 		ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
 		ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
 		ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
+		//TODO conform repo data
 		if(repo.getSonarMetrics().size()>0){
 			ps.setLong(17, repo.getSonarMetrics().get(0).getValue().longValue());//loc
 			ps.setLong(18, repo.getSonarMetrics().get(1).getValue().longValue());//sqale_index
@@ -113,6 +114,7 @@ public class DBOperation {
 		ps.setDouble(14, user.getAvgIssuesCount());// avg_issues
 		ps.setDouble(15, user.getAvgHandledIssuesRatio());// avg_issue_ratio
 		ps.setDouble(16, user.getAvgIssueHandledDays());// avg_issue_days
+		//TODO conform user data
 		ps.setDouble(17, user.getAvgMajorLanguageLOC());// avg_loc
 		ps.setDouble(18, user.getAvgSqaleIndex());// avg_sqale_index
 		ps.setDouble(19, user.getAvgDebtRatio());// avg_debt_ratio
@@ -169,6 +171,7 @@ public class DBOperation {
 				ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
 				ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
 				ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
+				//TODO 
 				if(repo.getSonarMetrics().size()>0){
 					ps.setLong(17, repo.getSonarMetrics().get(0).getValue().longValue());//loc
 					ps.setLong(18, repo.getSonarMetrics().get(1).getValue().longValue());//sqale_index
