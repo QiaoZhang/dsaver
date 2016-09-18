@@ -52,7 +52,7 @@ public class DBOperation {
 
 	public int insert(Repository repo)
 			throws SQLException {
-		final String sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,loc,sqale_index,debt_ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		final String sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,bugs,vulnerabilities,code_smells,sqale_index,debt_ratio,dp_lines_density,dp_blocks,dp_lines,dp_files,loc,total_lines,statements,functions,classes,files,directories,complexity,file_complexity,function_complexity,class_complexity,comment_density,comment_lines,public_api,documented_api_density,undocumented_api) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);// id
 		ps.setLong(2, repo.getProjectID());// repo_id
@@ -70,15 +70,58 @@ public class DBOperation {
 		ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
 		ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
 		ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
-		//TODO conform repo data
 		if(repo.getSonarMetrics().size()>0){
-			ps.setLong(17, repo.getSonarMetrics().get(0).getValue().longValue());//loc
-			ps.setLong(18, repo.getSonarMetrics().get(1).getValue().longValue());//sqale_index
-			ps.setDouble(19, repo.getSonarMetrics().get(2).getValue());//debt_ratio
+			ps.setLong(17, repo.getSonarMetrics("bugs").getValue().longValue());//bugs
+			ps.setLong(18, repo.getSonarMetrics("vulnerabilities").getValue().longValue());//vulnerabilities
+			ps.setLong(19, repo.getSonarMetrics("code_smells").getValue().longValue());//code_smells
+			ps.setLong(20, repo.getSonarMetrics("sqale_index").getValue().longValue());//sqale_index
+			ps.setDouble(21, repo.getSonarMetrics("debt_ratio").getValue());//debt_ratio
+			ps.setDouble(22, repo.getSonarMetrics("dp_lines_density").getValue());//dp_lines_density
+			ps.setLong(23, repo.getSonarMetrics("dp_blocks").getValue().longValue());//dp_blocks
+			ps.setLong(24, repo.getSonarMetrics("dp_lines").getValue().longValue());//dp_lines
+			ps.setLong(25, repo.getSonarMetrics("dp_files").getValue().longValue());//dp_files
+			ps.setLong(26, repo.getSonarMetrics("loc").getValue().longValue());//loc
+			ps.setLong(27, repo.getSonarMetrics("total_lines").getValue().longValue());//total_lines
+			ps.setLong(28, repo.getSonarMetrics("statements").getValue().longValue());//statements
+			ps.setLong(29, repo.getSonarMetrics("functions").getValue().longValue());//functions
+			ps.setLong(30, repo.getSonarMetrics("classes").getValue().longValue());//classes
+			ps.setLong(31, repo.getSonarMetrics("files").getValue().longValue());//files
+			ps.setLong(32, repo.getSonarMetrics("directories").getValue().longValue());//directories
+			ps.setLong(33, repo.getSonarMetrics("complexity").getValue().longValue());//complexity
+			ps.setDouble(34, repo.getSonarMetrics("file_complexity").getValue());//file_complexity
+			ps.setDouble(35, repo.getSonarMetrics("function_complexity").getValue());//function_complexity
+			ps.setDouble(36, repo.getSonarMetrics("class_complexity").getValue());//class_complexity
+			ps.setDouble(37, repo.getSonarMetrics("comment_density").getValue());//comment_density
+			ps.setLong(38, repo.getSonarMetrics("comment_lines").getValue().longValue());//comment_lines
+			ps.setLong(39, repo.getSonarMetrics("public_api").getValue().longValue());//public_api
+			ps.setDouble(40, repo.getSonarMetrics("documented_api_density").getValue());//documented_api_density
+			ps.setLong(41, repo.getSonarMetrics("undocumented_api").getValue().longValue());//undocumented_api
 		}else{
-			ps.setNull(17, Types.INTEGER);
-			ps.setNull(18, Types.INTEGER);
-			ps.setNull(19, Types.DOUBLE);
+			ps.setNull(17, Types.INTEGER);//bugs
+			ps.setNull(18, Types.INTEGER);//vulnerabilities
+			ps.setNull(19, Types.INTEGER);//code_smells
+			ps.setNull(20, Types.INTEGER);//sqale_index
+			ps.setNull(21, Types.DOUBLE);//debt_ratio
+			ps.setNull(22, Types.DOUBLE);//dp_lines_density
+			ps.setNull(23, Types.INTEGER);//dp_blocks
+			ps.setNull(24, Types.INTEGER);//dp_lines
+			ps.setNull(25, Types.INTEGER);//dp_files
+			ps.setNull(26, Types.INTEGER);//loc
+			ps.setNull(27, Types.INTEGER);//total_lines
+			ps.setNull(28, Types.INTEGER);//statements
+			ps.setNull(29, Types.INTEGER);//functions
+			ps.setNull(30, Types.INTEGER);//classes
+			ps.setNull(31, Types.INTEGER);//files
+			ps.setNull(32, Types.INTEGER);//directories
+			ps.setNull(33, Types.INTEGER);//complexity
+			ps.setNull(34, Types.DOUBLE);//file_complexity
+			ps.setNull(35, Types.DOUBLE);//function_complexity
+			ps.setNull(36, Types.DOUBLE);//class_complexity
+			ps.setNull(37, Types.DOUBLE);//comment_density
+			ps.setNull(38, Types.INTEGER);//comment_lines
+			ps.setNull(39, Types.INTEGER);//public_api
+			ps.setNull(40, Types.DOUBLE);//documented_api_density
+			ps.setNull(41, Types.INTEGER);//undocumented_api
 		}
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
@@ -96,36 +139,58 @@ public class DBOperation {
 	}
 
 	public int insert(User user) throws SQLException {
-		final String sql = "INSERT IGNORE INTO user (id,user_id,user_html,user_login,user_name,public_repos,followers,assignees,analyzed_repos,avg_size,avg_stargazers,avg_subscribers,avg_forks,avg_issues,avg_issue_ratio,avg_issue_days,avg_loc,avg_sqale_index,avg_debt_ratio,pull_requests,accepted_pr,contrib_repos,avg_commits,avg_addition,avg_deletion,avg_changed_files,avg_days_interval) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		final String sql = "INSERT IGNORE INTO user (id,user_id,user_url,user_html,user_login,user_name,public_repos,followers,assignees,analyzed_repos,avg_size,avg_stargazers,avg_subscribers,avg_forks,avg_issues,avg_issue_ratio,avg_issue_days,pull_requests,accepted_pr,contrib_repos,avg_commits,avg_addition,avg_deletion,avg_changed_files,avg_days_interval,avg_bugs,avg_vulnerabilities,avg_code_smells,avg_sqale_index,avg_debt_ratio,avg_dp_lines_density,avg_dp_blocks,avg_dp_lines,avg_dp_files,avg_loc,avg_lines,avg_statements,avg_functions,avg_classes,avg_files,avg_directories,avg_complexity,avg_file_cp,avg_function_cp,avg_class_cp,avg_comment_density,avg_comment_lines,avg_public_api,avg_d_api_density,avg_ud_api) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);// id
 		ps.setLong(2, user.getUserId());// user_id
-		ps.setString(3, user.getUserURL());// user_html
-		ps.setString(4, user.getLogin());// user_login
-		ps.setString(5, user.getName());// user_name
-		ps.setInt(6, user.getNumOfPublicRepos());// public_repos
-		ps.setLong(7, user.getFollowers());// followers
-		ps.setLong(8, user.getNumOfAssignees());// assignees
-		ps.setInt(9, user.getNumOfAnalyzedRepos());// analyzed_repos
-		ps.setDouble(10, user.getAvgSize());// avg_size
-		ps.setDouble(11, user.getAvgStargazersCount());// avg_stargazers
-		ps.setDouble(12, user.getAvgSubscribersCount());// avg_subscribers
-		ps.setDouble(13, user.getAvgForksCount());// avg_forks
-		ps.setDouble(14, user.getAvgIssuesCount());// avg_issues
-		ps.setDouble(15, user.getAvgHandledIssuesRatio());// avg_issue_ratio
-		ps.setDouble(16, user.getAvgIssueHandledDays());// avg_issue_days
-		//TODO conform user data
-		ps.setDouble(17, user.getAvgMajorLanguageLOC());// avg_loc
-		ps.setDouble(18, user.getAvgSqaleIndex());// avg_sqale_index
-		ps.setDouble(19, user.getAvgDebtRatio());// avg_debt_ratio
-		ps.setDouble(20, user.getNumOfPullRequest());// pull_requests
-		ps.setDouble(21, user.getNumOfAcceptedPR());// accepted_pr
-		ps.setDouble(22, user.getNumOfContributedRepos());// contrib_repos
-		ps.setDouble(23, user.getAvgCommits());// avg_commits
-		ps.setDouble(24, user.getAvgAdditions());// avg_addition
-		ps.setDouble(25, user.getAvgDeletions());// avg_deletion
-		ps.setDouble(26, user.getAvgChangedFiles());// avg_changed_files
-		ps.setDouble(27, user.getAvgDaysIntervalOfPR());// avg_days_interval
+		ps.setString(3, user.getUserURL());// user_url
+		ps.setString(4, user.getUserHTML());//user_html
+		ps.setString(5, user.getLogin());// user_login
+		ps.setString(6, user.getName());// user_name
+		ps.setInt(7, user.getNumOfPublicRepos());// public_repos
+		ps.setLong(8, user.getFollowers());// followers
+		ps.setLong(9, user.getNumOfAssignees());// assignees
+		ps.setInt(10, user.getNumOfAnalyzedRepos());// analyzed_repos
+		ps.setDouble(11, user.getAvgSize());// avg_size
+		ps.setDouble(12, user.getAvgStargazersCount());// avg_stargazers
+		ps.setDouble(13, user.getAvgSubscribersCount());// avg_subscribers
+		ps.setDouble(14, user.getAvgForksCount());// avg_forks
+		ps.setDouble(15, user.getAvgIssuesCount());// avg_issues
+		ps.setDouble(16, user.getAvgHandledIssuesRatio());// avg_issue_ratio
+		ps.setDouble(17, user.getAvgIssueHandledDays());// avg_issue_days
+		ps.setDouble(18, user.getNumOfPullRequest());// pull_requests
+		ps.setDouble(19, user.getNumOfAcceptedPR());// accepted_pr
+		ps.setDouble(20, user.getNumOfContributedRepos());// contrib_repos
+		ps.setDouble(21, user.getAvgCommits());// avg_commits
+		ps.setDouble(22, user.getAvgAdditions());// avg_addition
+		ps.setDouble(23, user.getAvgDeletions());// avg_deletion
+		ps.setDouble(24, user.getAvgChangedFiles());// avg_changed_files
+		ps.setDouble(25, user.getAvgDaysIntervalOfPR());// avg_days_interval
+		ps.setDouble(26, user.getAvgBugs());// avg_bugs
+		ps.setDouble(27, user.getAvgVulnerabilities());// avg_vulnerabilities
+		ps.setDouble(28, user.getAvgCodeSmells());// avg_code_smells
+		ps.setDouble(29, user.getAvgSqaleIndex());// avg_sqale_index
+		ps.setDouble(30, user.getAvgDebtRatio());// avg_debt_ratio
+		ps.setDouble(31, user.getAvgDuplicatedLineDensity());// avg_dp_lines_density
+		ps.setDouble(32, user.getAvgDuplicatedBlocks());// avg_dp_blocks
+		ps.setDouble(33, user.getAvgDuplicatedLines());// avg_dp_lines
+		ps.setDouble(34, user.getAvgDuplicatedFiles());// avg_dp_files
+		ps.setDouble(35, user.getAvgMajorLanguageLOC());// avg_loc
+		ps.setDouble(36, user.getAvgLines());// avg_lines
+		ps.setDouble(37, user.getAvgStatements());// avg_statements
+		ps.setDouble(38, user.getAvgFunctions());// avg_functions
+		ps.setDouble(39, user.getAvgClasses());// avg_classes
+		ps.setDouble(40, user.getAvgFiles());// avg_files
+		ps.setDouble(41, user.getAvgDirectories());// avg_directories
+		ps.setDouble(42, user.getAvgComplexity());// avg_complexity
+		ps.setDouble(43, user.getAvgFileComplexity());// avg_file_cp
+		ps.setDouble(44, user.getAvgFunctionComplexity());// avg_function_cp
+		ps.setDouble(45, user.getAvgClassComplexity());// avg_class_cp
+		ps.setDouble(46, user.getAvgCommemtLineDensity());// avg_comment_density
+		ps.setDouble(47, user.getAvgCommentLines());// avg_comment_lines
+		ps.setDouble(48, user.getAvgPublicAPI());// avg_public_api
+		ps.setDouble(49, user.getAvgDocumentedAPIDensity());// avg_d_api_density
+		ps.setDouble(50, user.getAvgUndocumentedAPI());// avg_ud_api		
 		if (ps.executeUpdate() >= 0){
 			ResultSet rs = ps.getGeneratedKeys();
 			ps.close();//close statement to release resource
@@ -152,8 +217,13 @@ public class DBOperation {
 			ResultSet rs = ps.getGeneratedKeys();
 			ps.close();//close statement to release resource
 			if(rs.next()){
+				int val = rs.getInt(1);
 				rs.close();
-				sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,loc,sqale_index,debt_ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				if(this.insert((Repository)repo)!=0)
+					return val;
+				else
+					return 0;
+				/*sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,loc,sqale_index,debt_ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 				ps = conn.prepareStatement(sql);
 				ps.setNull(1, Types.INTEGER);// id
 				ps.setLong(2, repo.getProjectID());// repo_id
@@ -193,7 +263,7 @@ public class DBOperation {
 				}else{
 					ps.close();//close statement to release resource
 					throw new SQLException("Creating user failed, no rows affected during insert operation of repo "+repo.getProjectID());
-				}
+				}*/
 			}
 			return 0;
 		}else{
