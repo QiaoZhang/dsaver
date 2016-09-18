@@ -49,9 +49,34 @@ public class DBOperation {
 		Connection con = DriverManager.getConnection(DB_URL, USER, PASS);
 		return con;
 	}
+	
+	public int insert(MajorRepository repo) throws Exception{
+		String sql = "INSERT IGNORE INTO major_repo (id,repo_id,task_id,contributors) VALUES (?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, repo.getProjectID());//repo_id
+		ps.setInt(3, repo.getTaskID());//task_id
+		ps.setInt(4, repo.getContributors().size());//contributors
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				Repository repoData = repo;
+				if(insert(repoData)>0)
+					return val;
+				else
+					return 0;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating major repo failed, no rows affected during insert operation of major repo "+repo.getProjectID());
+		}
+	}
 
-	public int insert(Repository repo)
-			throws SQLException {
+	public int insert(Repository repo) throws Exception {
 		final String sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,bugs,vulnerabilities,code_smells,sqale_index,debt_ratio,dp_lines_density,dp_blocks,dp_lines,dp_files,loc,total_lines,statements,functions,classes,files,directories,complexity,file_complexity,function_complexity,class_complexity,comment_density,comment_lines,public_api,documented_api_density,undocumented_api) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);// id
@@ -71,31 +96,31 @@ public class DBOperation {
 		ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
 		ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
 		if(repo.getSonarMetrics().size()>0){
-			ps.setLong(17, repo.getSonarMetrics("bugs").getValue().longValue());//bugs
-			ps.setLong(18, repo.getSonarMetrics("vulnerabilities").getValue().longValue());//vulnerabilities
-			ps.setLong(19, repo.getSonarMetrics("code_smells").getValue().longValue());//code_smells
-			ps.setLong(20, repo.getSonarMetrics("sqale_index").getValue().longValue());//sqale_index
-			ps.setDouble(21, repo.getSonarMetrics("debt_ratio").getValue());//debt_ratio
-			ps.setDouble(22, repo.getSonarMetrics("dp_lines_density").getValue());//dp_lines_density
-			ps.setLong(23, repo.getSonarMetrics("dp_blocks").getValue().longValue());//dp_blocks
-			ps.setLong(24, repo.getSonarMetrics("dp_lines").getValue().longValue());//dp_lines
-			ps.setLong(25, repo.getSonarMetrics("dp_files").getValue().longValue());//dp_files
-			ps.setLong(26, repo.getSonarMetrics("loc").getValue().longValue());//loc
-			ps.setLong(27, repo.getSonarMetrics("total_lines").getValue().longValue());//total_lines
-			ps.setLong(28, repo.getSonarMetrics("statements").getValue().longValue());//statements
-			ps.setLong(29, repo.getSonarMetrics("functions").getValue().longValue());//functions
-			ps.setLong(30, repo.getSonarMetrics("classes").getValue().longValue());//classes
-			ps.setLong(31, repo.getSonarMetrics("files").getValue().longValue());//files
-			ps.setLong(32, repo.getSonarMetrics("directories").getValue().longValue());//directories
-			ps.setLong(33, repo.getSonarMetrics("complexity").getValue().longValue());//complexity
-			ps.setDouble(34, repo.getSonarMetrics("file_complexity").getValue());//file_complexity
-			ps.setDouble(35, repo.getSonarMetrics("function_complexity").getValue());//function_complexity
-			ps.setDouble(36, repo.getSonarMetrics("class_complexity").getValue());//class_complexity
-			ps.setDouble(37, repo.getSonarMetrics("comment_density").getValue());//comment_density
-			ps.setLong(38, repo.getSonarMetrics("comment_lines").getValue().longValue());//comment_lines
-			ps.setLong(39, repo.getSonarMetrics("public_api").getValue().longValue());//public_api
-			ps.setDouble(40, repo.getSonarMetrics("documented_api_density").getValue());//documented_api_density
-			ps.setLong(41, repo.getSonarMetrics("undocumented_api").getValue().longValue());//undocumented_api
+			ps.setLong(17, repo.getSonarMetrics("bugs").longValue());//bugs
+			ps.setLong(18, repo.getSonarMetrics("vulnerabilities").longValue());//vulnerabilities
+			ps.setLong(19, repo.getSonarMetrics("code_smells").longValue());//code_smells
+			ps.setLong(20, repo.getSonarMetrics("sqale_index").longValue());//sqale_index
+			ps.setDouble(21, repo.getSonarMetrics("sqale_debt_ratio"));//debt_ratio
+			ps.setDouble(22, repo.getSonarMetrics("duplicated_lines_density"));//dp_lines_density
+			ps.setLong(23, repo.getSonarMetrics("duplicated_blocks").longValue());//dp_blocks
+			ps.setLong(24, repo.getSonarMetrics("duplicated_lines").longValue());//dp_lines
+			ps.setLong(25, repo.getSonarMetrics("duplicated_files").longValue());//dp_files
+			ps.setLong(26, repo.getSonarMetrics("ncloc").longValue());//loc
+			ps.setLong(27, repo.getSonarMetrics("lines").longValue());//total_lines
+			ps.setLong(28, repo.getSonarMetrics("statements").longValue());//statements
+			ps.setLong(29, repo.getSonarMetrics("functions").longValue());//functions
+			ps.setLong(30, repo.getSonarMetrics("classes").longValue());//classes
+			ps.setLong(31, repo.getSonarMetrics("files").longValue());//files
+			ps.setLong(32, repo.getSonarMetrics("directories").longValue());//directories
+			ps.setLong(33, repo.getSonarMetrics("complexity").longValue());//complexity
+			ps.setDouble(34, repo.getSonarMetrics("file_complexity"));//file_complexity
+			ps.setDouble(35, repo.getSonarMetrics("function_complexity"));//function_complexity
+			ps.setDouble(36, repo.getSonarMetrics("class_complexity"));//class_complexity
+			ps.setDouble(37, repo.getSonarMetrics("comment_lines_density"));//comment_density
+			ps.setLong(38, repo.getSonarMetrics("comment_lines").longValue());//comment_lines
+			ps.setLong(39, repo.getSonarMetrics("public_api").longValue());//public_api
+			ps.setDouble(40, repo.getSonarMetrics("public_documented_api_density"));//documented_api_density
+			ps.setLong(41, repo.getSonarMetrics("public_undocumented_api").longValue());//undocumented_api
 		}else{
 			ps.setNull(17, Types.INTEGER);//bugs
 			ps.setNull(18, Types.INTEGER);//vulnerabilities
@@ -134,11 +159,11 @@ public class DBOperation {
 			return 0;
 		}else{
 			ps.close();//close statement to release resource
-			throw new SQLException("Creating user failed, no rows affected during insert operation of repo "+repo.getProjectID());
+			throw new SQLException("Creating repo failed, no rows affected during insert operation of repo "+repo.getProjectID());
 		}
 	}
 
-	public int insert(User user) throws SQLException {
+	public int insert(User user) throws Exception {
 		final String sql = "INSERT IGNORE INTO user (id,user_id,user_url,user_html,user_login,user_name,public_repos,followers,assignees,analyzed_repos,avg_size,avg_stargazers,avg_subscribers,avg_forks,avg_issues,avg_issue_ratio,avg_issue_days,pull_requests,accepted_pr,contrib_repos,avg_commits,avg_addition,avg_deletion,avg_changed_files,avg_days_interval,avg_bugs,avg_vulnerabilities,avg_code_smells,avg_sqale_index,avg_debt_ratio,avg_dp_lines_density,avg_dp_blocks,avg_dp_lines,avg_dp_files,avg_loc,avg_lines,avg_statements,avg_functions,avg_classes,avg_files,avg_directories,avg_complexity,avg_file_cp,avg_function_cp,avg_class_cp,avg_comment_density,avg_comment_lines,avg_public_api,avg_d_api_density,avg_ud_api) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);// id
@@ -205,74 +230,8 @@ public class DBOperation {
 			throw new SQLException("Creating user failed, no rows affected during insert operation of user "+user.getUserId());
 		}
 	}
-	
-	public int insert(MajorRepository repo) throws SQLException{
-		String sql = "INSERT IGNORE INTO major_repo (id,repo_id,task_id,contributors) VALUES (?,?,?,?)";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		ps.setNull(1, Types.INTEGER);//id
-		ps.setLong(2, repo.getProjectID());//repo_id
-		ps.setInt(3, repo.getTaskID());//task_id
-		ps.setInt(4, repo.getContributors().size());//contributors
-		if (ps.executeUpdate() >= 0){
-			ResultSet rs = ps.getGeneratedKeys();
-			ps.close();//close statement to release resource
-			if(rs.next()){
-				int val = rs.getInt(1);
-				rs.close();
-				if(this.insert((Repository)repo)!=0)
-					return val;
-				else
-					return 0;
-				/*sql = "INSERT IGNORE INTO repo (id,repo_id,repo_url,repo_html,repo_name,owner_login,owner_type,major_language,version,size,stargazers,forks,issues,handled_issues,avg_days,created_date,loc,sqale_index,debt_ratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-				ps = conn.prepareStatement(sql);
-				ps.setNull(1, Types.INTEGER);// id
-				ps.setLong(2, repo.getProjectID());// repo_id
-				ps.setString(3, repo.getRepositoryURL());// repo_url
-				ps.setString(4, repo.getRepositoryHTML());// repo_html
-				ps.setString(5, repo.getProjectName());// repo_name
-				ps.setString(6, repo.getOwnerLogin());// owner_login
-				ps.setString(7, repo.getUserType());// owner_type
-				ps.setString(8, repo.getLanguage());// major_language
-				ps.setString(9, repo.getVersion());// version
-				ps.setLong(10, repo.getSize());// size
-				ps.setLong(11, repo.getStargazersCount());// stargazers
-				ps.setLong(12, repo.getForksCount());// forks
-				ps.setLong(13, repo.getIssuesCount());// issues
-				ps.setLong(14, repo.getHandledIssuesCount());// handled_issues
-				ps.setDouble(15, repo.getAvgIssueHandledDays());// avg_days,
-				ps.setTimestamp(16, new Timestamp(repo.getCreatedAt().getMillis()));// created_date
-				//TODO 
-				if(repo.getSonarMetrics().size()>0){
-					ps.setLong(17, repo.getSonarMetrics().get(0).getValue().longValue());//loc
-					ps.setLong(18, repo.getSonarMetrics().get(1).getValue().longValue());//sqale_index
-					ps.setDouble(19, repo.getSonarMetrics().get(2).getValue());//debt_ratio
-				}else{
-					ps.setNull(17, Types.INTEGER);
-					ps.setNull(18, Types.INTEGER);
-					ps.setNull(19, Types.DOUBLE);
-				}
-				if (ps.executeUpdate() >= 0){
-					ResultSet rs_repo = ps.getGeneratedKeys();
-					ps.close();//close statement to release resource
-					if(rs_repo.next()){
-						int val = rs_repo.getInt(1);
-						rs_repo.close();
-						return val;
-					}
-					return 0;
-				}else{
-					ps.close();//close statement to release resource
-					throw new SQLException("Creating user failed, no rows affected during insert operation of repo "+repo.getProjectID());
-				}*/
-			}
-			return 0;
-		}else{
-			ps.close();//close statement to release resource
-			throw new SQLException("Creating user failed, no rows affected during insert operation of major repo "+repo.getProjectID());
-		}
-	}
 
-	public int insert(Client client) throws SQLException{
+	public int insert(Client client) throws Exception{
 		final String sql = "INSERT INTO clients (client_id,finger_print,username,password,app_id,app_secret,last_update) VALUES (?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setInt(1, client.getClientID());//client_id
@@ -297,7 +256,7 @@ public class DBOperation {
 		}
 	}
 	
-	public int insert(Task task) throws SQLException{
+	public int insert(Task task) throws Exception{
 		final String sql = "INSERT INTO tasks (task_id,client_id,state,total,success,failed,language,user,size,stars,forks,created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);//task_id - auto-increment
@@ -356,7 +315,7 @@ public class DBOperation {
 		}
 	}
 	
-	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws SQLException{
+	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws Exception{
 		if(!isMajorRepo)
 			return connect(user_id,repo_id);
 		final String sql = "INSERT INTO repo_users (id,repo_id,user_id) VALUES (?,?,?)";
@@ -379,7 +338,7 @@ public class DBOperation {
 		}
 	}
 	
-	public int connect(long user_id,long repo_id) throws SQLException{
+	public int connect(long user_id,long repo_id) throws Exception{
 		final String sql = "INSERT INTO user_repos (id,user_id,repo_id) VALUES (?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);//id
@@ -400,7 +359,7 @@ public class DBOperation {
 		}
 	}
 	
-	public ArrayList<Client> getClientInfo() throws SQLException{
+	public ArrayList<Client> getClientInfo() throws Exception{
 		ArrayList<Client> clients = new ArrayList<Client>();
 		final String clientSQL = "SELECT * FROM clients";
 		PreparedStatement clientPS = conn.prepareStatement(clientSQL);
@@ -411,7 +370,7 @@ public class DBOperation {
 		return clients;
 	}
 
-	public Client getClientInfo(String fingerPrint) throws SQLException{
+	public Client getClientInfo(String fingerPrint) throws Exception{
 		final String clientSQL = "SELECT * FROM clients WHERE finger_print = ?";
 		PreparedStatement clientPS = conn.prepareStatement(clientSQL);
 		clientPS.setString(1, fingerPrint);
@@ -421,7 +380,7 @@ public class DBOperation {
 		return null;
 	}
 	
-	public int updateClient(int clientID) {
+	public int updateClient(int clientID) throws Exception{
 		try {
 			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -445,7 +404,7 @@ public class DBOperation {
 		}		
 	}
 	
-	public int updateClient(MajorRepository repo) {
+	public int updateClient(MajorRepository repo) throws Exception{
 		try {
 			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = (SELECT client_id FROM tasks WHERE taks_id = ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -469,7 +428,7 @@ public class DBOperation {
 		}	
 	}
 	
-	public int updateTask(int taskID){
+	public int updateTask(int taskID) throws Exception{
 		try {
 			final String sql = "UPDATE tasks SET success = success + 1 WHERE task_id = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -492,7 +451,7 @@ public class DBOperation {
 		}		
 	}
 	
-	public int updateTask(int taskID, int failed) throws SQLException{
+	public int updateTask(int taskID, int failed) throws Exception{
 		final String sql = "UPDATE tasks SET failed = ? WHERE task_id = ?";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setInt(1, failed);//failed
@@ -512,7 +471,7 @@ public class DBOperation {
 		}
 	}
 	
-	public int updateTask(int taskID, String state) throws SQLException{
+	public int updateTask(int taskID, String state) throws Exception{
 		final String sql = "UPDATE tasks SET state = ? WHERE task_id = ?";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setString(1, state);//failed
@@ -532,7 +491,7 @@ public class DBOperation {
 		}
 	}
 	
-	public int updateTask(Client client, String state, int failed) throws SQLException{
+	public int updateTask(Client client, String state, int failed) throws Exception{
 		final String sql = "UPDATE tasks SET state = ?,failed=? WHERE state = 'open' AND client_id = (SELECT client_id FROM clients WHERE finger_print = ?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setString(1, state);//failed
@@ -553,7 +512,7 @@ public class DBOperation {
 		}
 	}
 	
-	private Client extractClientInfo(ResultSet clientRS) throws SQLException{
+	private Client extractClientInfo(ResultSet clientRS) throws Exception{
 		Client client = new Client()
 			.setClientID(clientRS.getInt("client_id"))
 			.setFingerPrint(clientRS.getString("finger_print"))
@@ -593,7 +552,7 @@ public class DBOperation {
 		return state;
 	}
 	
-	protected void finalize() throws SQLException{
+	protected void finalize() throws Exception{
 		this.conn.close();
 	}
 }

@@ -116,12 +116,12 @@ public class Repository {
 			this.sonarMetrics = sonarMetrics;
 	}
 	
-	public SonarMetrics getSonarMetrics(String key){
+	public Double getSonarMetrics(String key){
 		for(int i=0;i<sonarMetrics.size();i++){
-			if(sonarMetrics.get(i).getKey().equals(key))
-				return sonarMetrics.get(i);
+			if(sonarMetrics.get(i).getKey().compareTo(key)==0)
+				return sonarMetrics.get(i).getValue();
 		}
-		return null;
+		return new Double(0.0);
 	}
 
 	public long getSize() {

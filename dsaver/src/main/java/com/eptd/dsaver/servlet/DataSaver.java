@@ -30,7 +30,7 @@ public class DataSaver extends HttpServlet {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()));
 		MajorRepository majorRepo = gson.fromJson(reader, MajorRepository.class);
 		//insert MajorRepository data into database
-		response.setContentType("application/json");
+		response.setContentType("application/json");		
 		if(majorRepo.getProjectID() != 0){
 			MajorRepoProcessor processor;
 			if(request.getHeader("Failed-repo")!=null&&Integer.valueOf(request.getHeader("Failed-repo"))>0)
