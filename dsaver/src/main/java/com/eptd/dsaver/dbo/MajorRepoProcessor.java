@@ -28,6 +28,8 @@ public class MajorRepoProcessor {
 		resp.addProperty("success", true);
 		try {
 			dbo = new DBOperation();
+			//update client
+			dbo.updateClient(repo);
 			int id = dbo.insert(repo);
 			if(id > 0)
 				resp.addProperty("generated_id", id);
@@ -45,8 +47,8 @@ public class MajorRepoProcessor {
 			}
 			//update task and client
 			dbo.updateTask(repo.getTaskID());//success + 1
-			dbo.updateTask(repo.getTaskID(), failed);//update failed
-			dbo.updateClient(repo);
+			if(failed>0)
+				dbo.updateTask(repo.getTaskID(), failed);//update failed			
 		} catch (Exception e) {
 			resp.remove("success");
 			resp.addProperty("success", false);

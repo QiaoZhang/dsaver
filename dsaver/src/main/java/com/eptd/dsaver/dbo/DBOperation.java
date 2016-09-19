@@ -33,15 +33,6 @@ public class DBOperation {
 		this.conn = this.getConnection();
 	}
 
-	/**
-	 * Method of connecting database
-	 * 
-	 * @return
-	 * @throws SQLException
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 */
 	private Connection getConnection()
 			throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		Class.forName(JDBC_DRIVER);
@@ -406,7 +397,7 @@ public class DBOperation {
 	
 	public int updateClient(MajorRepository repo) throws Exception{
 		try {
-			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = (SELECT client_id FROM tasks WHERE taks_id = ?)";
+			final String sql = "UPDATE clients SET last_update = ? WHERE client_id = (SELECT client_id FROM tasks WHERE task_id = ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setTimestamp(1, new Timestamp(new DateTime().getMillis()));
 			ps.setInt(2, repo.getTaskID());//task_id
@@ -428,9 +419,15 @@ public class DBOperation {
 		}	
 	}
 	
+	/**
+	 * Increase the success of a task by 1 if a major repo data set has been successfully recorded
+	 * @param taskID to identify which task
+	 * @return 0 if the operation failed; others if success
+	 * @throws Exception including NullPointerException and SQLException
+	 */
 	public int updateTask(int taskID) throws Exception{
 		try {
-			final String sql = "UPDATE tasks SET success = success + 1 WHERE task_id = ?";
+			final String sql = "UPDATE tasks SET success = 100 WHERE task_id = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, taskID);//task_id
 			if (ps.executeUpdate() >= 0){
@@ -451,6 +448,13 @@ public class DBOperation {
 		}		
 	}
 	
+	/**
+	 * Update task failed based on provided taskID
+	 * @param taskID to identify which task
+	 * @param failed the number of failed or skipped major repos
+	 * @return 0 if the operation failed; others if success
+	 * @throws Exception including NullPointerException and SQLException
+	 */
 	public int updateTask(int taskID, int failed) throws Exception{
 		final String sql = "UPDATE tasks SET failed = ? WHERE task_id = ?";
 		PreparedStatement ps = conn.prepareStatement(sql);
@@ -471,6 +475,13 @@ public class DBOperation {
 		}
 	}
 	
+	/**
+	 * Update task state based on provided taskID
+	 * @param taskID to identify which task
+	 * @param state to determine the new state
+	 * @return 0 if the operation failed; others if success
+	 * @throws Exception including NullPointerException and SQLException
+	 */
 	public int updateTask(int taskID, String state) throws Exception{
 		final String sql = "UPDATE tasks SET state = ? WHERE task_id = ?";
 		PreparedStatement ps = conn.prepareStatement(sql);
@@ -491,6 +502,14 @@ public class DBOperation {
 		}
 	}
 	
+	/**
+	 * Update relevant task during a data saving operation from client
+	 * @param client to provide client's fingerPrint
+	 * @param state to determine the new state of task which is 'open'
+	 * @param failed the number of failed or skipped major repos
+	 * @return 0 if the operation failed; others if success
+	 * @throws Exception including NullPointerException and SQLException
+	 */
 	public int updateTask(Client client, String state, int failed) throws Exception{
 		final String sql = "UPDATE tasks SET state = ?,failed=? WHERE state = 'open' AND client_id = (SELECT client_id FROM clients WHERE finger_print = ?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
@@ -512,6 +531,12 @@ public class DBOperation {
 		}
 	}
 	
+	/**
+	 * Extract client and its tasks information based on passed client info result set
+	 * @param clientRS result set where the current pointer point to a client tuple
+	 * @return Client Class instance which contains all client and its tasks information
+	 * @throws Exception including NullPointerException and SQLException
+	 */
 	private Client extractClientInfo(ResultSet clientRS) throws Exception{
 		Client client = new Client()
 			.setClientID(clientRS.getInt("client_id"))

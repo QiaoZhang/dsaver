@@ -146,7 +146,7 @@ function appendClients(json){
 								+json.data[i].tasks[j].total+'</td><td class="task-success">'
 								+json.data[i].tasks[j].success+'</td><td class="task-failed">'
 								+json.data[i].tasks[j].failed+'</td><td>'
-								+generateQuery(json.data[i].tasks[j])+'</td><td><div class="progress progress-striped active"><div class="progress-bar'
+								+generateQuery(json.data[i].tasks[j])+'</td><td><div class="progress progress-striped active"><div class="progress-bar '
 								+progressStyle(json.data[i].tasks[j].state)+'" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: '
 								+progress+'%;"><span class="sr-only">'
 								+progress+'%</span></div></div></td></tr>';

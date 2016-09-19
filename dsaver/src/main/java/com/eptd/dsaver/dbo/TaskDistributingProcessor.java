@@ -36,7 +36,9 @@ public class TaskDistributingProcessor {
 		try {
 			dbo = new DBOperation();
 			//if a failed has been passed, close the opening task and make the next assigned task open
-			if(failed != 0)
+			if(failed == -1)
+				dbo.updateTask(client, "closed", 0);
+			else if(failed != 0)
 				dbo.updateTask(client, "closed", failed);
 			Client clientTasks = dbo.getClientInfo(client.getFingerPrint());
 			if(clientTasks != null){
