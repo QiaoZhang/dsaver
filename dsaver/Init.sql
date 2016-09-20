@@ -100,6 +100,7 @@ CREATE TABLE repo_users
 	id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'record id',
 	repo_id int unsigned,
 	user_id int unsigned,
+	contribution int unsigned,
 	PRIMARY KEY (id)
 );
 

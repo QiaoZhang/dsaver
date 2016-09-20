@@ -306,14 +306,13 @@ public class DBOperation {
 		}
 	}
 	
-	public int connect(long repo_id,long user_id,boolean isMajorRepo) throws Exception{
-		if(!isMajorRepo)
-			return connect(user_id,repo_id);
-		final String sql = "INSERT INTO repo_users (id,repo_id,user_id) VALUES (?,?,?)";
+	public int connect(long repo_id,long user_id,long contribution) throws Exception{
+		final String sql = "INSERT INTO repo_users (id,repo_id,user_id,contribution) VALUES (?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setNull(1, Types.INTEGER);//id
 		ps.setLong(2, repo_id);//repo_id
 		ps.setLong(3, user_id);//user_id
+		ps.setLong(4, contribution);//contribution
 		if (ps.executeUpdate() == 0){
 			ps.close();//close statement to release resource
 			throw new SQLException("Creating connection between major repo "+repo_id+" and user "+user_id+" failed, no rows affected.");
@@ -427,7 +426,7 @@ public class DBOperation {
 	 */
 	public int updateTask(int taskID) throws Exception{
 		try {
-			final String sql = "UPDATE tasks SET success = 100 WHERE task_id = ?";
+			final String sql = "UPDATE tasks SET success = success + 1 WHERE task_id = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, taskID);//task_id
 			if (ps.executeUpdate() >= 0){

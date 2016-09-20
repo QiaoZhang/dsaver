@@ -12,6 +12,7 @@ public class User {
 	private int numOfAssignees = 0;
 	private long followers = 0;
 	private String folderPath = "";
+	private long contribution = 0;
 	
 	//attributes from owned repositories
 	private ArrayList<Repository> ownRepos = null;						
@@ -486,5 +487,13 @@ public class User {
 
 	public void setAvgUndocumentedAPI(double avgUndocumentedAPI) {
 		this.avgUndocumentedAPI = avgUndocumentedAPI;
+	}
+
+	public long getContribution() {
+		return contribution;
+	}
+
+	public void setContribution(long contribution) {
+		this.contribution = contribution;
 	}
 }

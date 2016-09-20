@@ -42,7 +42,7 @@ public class UserProcessor {
 				}
 			}
 			//connect user with major repo
-			int connID = dbo.connect(repo_id, user.getUserId(), true);
+			int connID = dbo.connect(repo_id, user.getUserId(), user.getContribution());
 			if(connID > 0)
 				resp.addProperty("connect_id", connID);
 			else
