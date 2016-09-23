@@ -28,8 +28,6 @@ public class MajorRepoProcessor {
 		resp.addProperty("success", true);
 		try {
 			dbo = new DBOperation();
-			//update client
-			dbo.updateClient(repo);
 			int id = dbo.insert(repo);
 			if(id > 0)
 				resp.addProperty("generated_id", id);
@@ -45,8 +43,19 @@ public class MajorRepoProcessor {
 					errors.add(response);
 				}
 			}
+			//process all filtered contributors
+			for(int i=0;i<repo.getFilteredContributors().size();i++){
+				FilteredUserProcessor processor = new FilteredUserProcessor(repo.getFilteredContributors().get(i),dbo);
+				JsonObject response = processor.process(repo.getProjectID());
+				if(!response.get("success").getAsBoolean()){
+					resp.remove("success");
+					resp.addProperty("success", false);
+					errors.add(response);
+				}
+			}
 			//update task and client
 			dbo.updateTask(repo.getTaskID());//success + 1
+			dbo.updateClient(repo);
 			if(failed>0)
 				dbo.updateTask(repo.getTaskID(), failed);//update failed			
 		} catch (Exception e) {

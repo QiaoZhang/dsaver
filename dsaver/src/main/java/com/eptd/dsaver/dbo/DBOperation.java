@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import com.eptd.dsaver.core.Client;
+import com.eptd.dsaver.core.FilteredUser;
 import com.eptd.dsaver.core.MajorRepository;
 import com.eptd.dsaver.core.Repository;
 import com.eptd.dsaver.core.Task;
@@ -151,6 +152,29 @@ public class DBOperation {
 		}else{
 			ps.close();//close statement to release resource
 			throw new SQLException("Creating repo failed, no rows affected during insert operation of repo "+repo.getProjectID());
+		}
+	}
+	
+	public int insert(FilteredUser user) throws Exception {
+		String sql = "INSERT IGNORE INTO filtereduser (id,user_id,user_login,user_url,user_html) VALUES (?,?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);
+		ps.setLong(2, user.getUserId());
+		ps.setString(3, user.getLogin());
+		ps.setString(4, user.getUserURL());
+		ps.setString(5, user.getUserHTML());
+		if (ps.executeUpdate() >= 0){
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
+		}else{
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating filtered user failed, no rows affected during insert operation of user "+user.getUserId());
 		}
 	}
 
@@ -303,6 +327,28 @@ public class DBOperation {
 		}else{
 			ps.close();//close statement to release resource
 			throw new SQLException("Creating task failed, no rows affected during insert operation of task "+task.getTaskID());
+		}
+	}
+	
+	public int connect(long repo_id,FilteredUser user) throws Exception{
+		final String sql = "INSERT INTO repo_filterdusers (id,repo_id,user_id,contribution) VALUES (?,?,?,?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setNull(1, Types.INTEGER);//id
+		ps.setLong(2, repo_id);//repo_id
+		ps.setLong(3, user.getUserId());//user_id
+		ps.setLong(4, user.getContribution());//contribution
+		if (ps.executeUpdate() == 0){
+			ps.close();//close statement to release resource
+			throw new SQLException("Creating connection between major repo "+repo_id+" and filtered user "+user.getUserId()+" failed, no rows affected.");
+		}else {
+			ResultSet rs = ps.getGeneratedKeys();
+			ps.close();//close statement to release resource
+			if(rs.next()){
+				int val = rs.getInt(1);
+				rs.close();
+				return val;
+			}
+			return 0;
 		}
 	}
 	

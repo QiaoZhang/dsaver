@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MajorRepository extends Repository{
-	private int TaskID = 0;
+	private int taskID = 0;
 	private long maxContribution = 0;
 	private long totalContribution = 0;
 	private ArrayList<User> contributors = new ArrayList<User>();
@@ -29,14 +29,6 @@ public class MajorRepository extends Repository{
 		this.contributors.addAll(contributors);
 	}
 
-	public int getTaskID() {
-		return TaskID;
-	}
-
-	public void setTaskID(int taskID) {
-		TaskID = taskID;
-	}
-
 	public long getMaxContribution() {
 		return maxContribution;
 	}
@@ -57,7 +49,23 @@ public class MajorRepository extends Repository{
 		return filteredContributors;
 	}
 
-	public void setFilteredContributors(ArrayList<FilteredUser> filteredContributors) {
-		this.filteredContributors = filteredContributors;
+	public void setFilteredContributors(ArrayList<FilteredUser> filteredCons) {
+		this.filteredContributors = filteredCons;
+	}
+	
+	public void addFilteredContributors(FilteredUser contributor){
+		this.filteredContributors.add(contributor);
+	}
+	
+	public void addAllFilteredContributors(List<FilteredUser> filteredContributors){
+		this.filteredContributors.addAll(filteredContributors);
+	}
+
+	public int getTaskID() {
+		return taskID;
+	}
+
+	public void setTaskID(int taskID) {
+		this.taskID = taskID;
 	}
 }

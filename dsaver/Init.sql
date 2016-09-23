@@ -1,8 +1,10 @@
 SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS filtereduser;
 DROP TABLE IF EXISTS major_repo;
 DROP TABLE IF EXISTS repo;
+DROP TABLE IF EXISTS repo_filterdusers;
 DROP TABLE IF EXISTS repo_users;
 DROP TABLE IF EXISTS tasks;
 DROP TABLE IF EXISTS user;
@@ -12,8 +14,7 @@ DROP TABLE IF EXISTS user_repos;
 
 CREATE TABLE clients
 (
-	-- auto increment
-	client_id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'auto increment',
+	client_id int unsigned zerofill NOT NULL AUTO_INCREMENT,
 	-- client identification
 	finger_print varchar(50) DEFAULT 'Unknown' COMMENT 'client identification',
 	-- github login
@@ -28,6 +29,17 @@ CREATE TABLE clients
 	last_update timestamp DEFAULT '1970-01-01 00:00:01.000000' COMMENT 'latest communication',
 	PRIMARY KEY (client_id),
 	UNIQUE (finger_print)
+);
+
+
+CREATE TABLE filtereduser
+(
+	id int unsigned zerofill NOT NULL AUTO_INCREMENT,
+	user_id int unsigned,
+	user_login varchar(200),
+	user_url varchar(500),
+	user_html varchar(500),
+	PRIMARY KEY (id)
 );
 
 
@@ -94,6 +106,17 @@ CREATE TABLE repo
 );
 
 
+CREATE TABLE repo_filterdusers
+(
+	-- record id
+	id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'record id',
+	repo_id int unsigned,
+	user_id int unsigned,
+	contribution int unsigned,
+	PRIMARY KEY (id)
+);
+
+
 CREATE TABLE repo_users
 (
 	-- record id
@@ -109,8 +132,7 @@ CREATE TABLE tasks
 (
 	-- task id
 	task_id int unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'task id',
-	-- auto increment
-	client_id int unsigned zerofill DEFAULT 0 COMMENT 'auto increment',
+	client_id int unsigned zerofill DEFAULT 0,
 	-- assigned, open, close, error
 	state varchar(50) DEFAULT 'assigned' COMMENT 'assigned, open, close, error',
 	-- total major repos counts
