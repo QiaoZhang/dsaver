@@ -53,12 +53,13 @@ public class TaskDistributingProcessor {
 						if(clientTasks.getTasks().get(i).getState().equals("assigned")&&!resp.has("task")){
 							newTaskIndex = i;
 							resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(i), Task.class)));
+							continue;
 						}
-						if(clientTasks.getTasks().get(i).getState().equals("open")||
-								clientTasks.getTasks().get(i).getState().equals("error")){
+						if(clientTasks.getTasks().get(i).getState().equals("open")||clientTasks.getTasks().get(i).getState().equals("error")){
 							newTaskIndex = 0;
 							if(resp.has("task"))
 								resp.remove("task");
+							clientTasks.getTasks().get(i).addAllFinishedRepos(dbo.getFinishedRepos(clientTasks.getTasks().get(i).getTaskID()));
 							resp.add("task", new JsonParser().parse(gson.toJson(clientTasks.getTasks().get(i), Task.class)));
 							break;
 						}

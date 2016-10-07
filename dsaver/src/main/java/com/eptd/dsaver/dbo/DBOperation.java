@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -414,6 +415,19 @@ public class DBOperation {
 		if(clientRS.next())
 			return extractClientInfo(clientRS);
 		return null;
+	}
+	
+	public List<Long> getFinishedRepos(int taskID) throws Exception{
+		final String sql = "SELECT repo_id FROM major_repo WHERE task_id = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setInt(1, taskID);//task_id
+		ResultSet rs = ps.executeQuery();
+		//save to List<Long>
+		List<Long> finishedRepos = new ArrayList<Long>();
+		while(rs.next()){
+			finishedRepos.add(rs.getLong("repo_id"));
+		}
+		return finishedRepos;
 	}
 	
 	public int updateClient(int clientID) throws Exception{
