@@ -43,6 +43,19 @@ public class DBOperation {
 		return con;
 	}
 	
+	public ResultSet getMajorRepos() throws SQLException{
+		String sql = "SELECT major_repo.id,repo.repo_name,major_repo.contributors,repo.debt_ratio FROM major_repo,repo WHERE major_repo.repo_id=repo.repo_id AND repo.debt_ratio IS NOT NULL";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		return ps.executeQuery();
+	}
+	
+	public ResultSet getRepoUsers(int repoID) throws SQLException {
+		String sql = "SELECT * FROM repo_users,user WHERE repo_users.repo_id=? AND repo_users.user_id=user.user_id ORDER BY repo_users.contribution DESC";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setInt(1, repoID);
+		return ps.executeQuery();
+	}
+	
 	public int insert(MajorRepository repo) throws Exception{
 		String sql = "INSERT IGNORE INTO major_repo (id,repo_id,task_id,contributors) VALUES (?,?,?,?)";
 		PreparedStatement ps = conn.prepareStatement(sql);
